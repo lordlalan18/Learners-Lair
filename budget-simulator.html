@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Budget Simulator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 100%);
+            color: #e0e0e0;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            padding: 40px 20px;
+            position: relative;
+        }
+
+        .home-btn {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(102, 126, 234, 0.1);
+            border: 2px solid #667eea;
+            color: #667eea;
+            padding: 12px 25px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .home-btn:hover {
+            background: #667eea;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        h1 {
+            font-size: 3.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #888;
+            font-size: 1.1rem;
+            letter-spacing: 1px;
+        }
+
+        .game-status {
+            text-align: center;
+            margin: 30px 0;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 15px;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .status-label {
+            font-size: 0.9rem;
+            color: #888;
+            margin-bottom: 10px;
+        }
+
+        .day-counter {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 20px;
+        }
+
+        .balance-display {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 30px;
+            flex-wrap: wrap;
+        }
+
+        .balance-item {
+            text-align: center;
+        }
+
+        .balance-label {
+            font-size: 0.9rem;
+            color: #888;
+            margin-bottom: 5px;
+        }
+
+        .balance-value {
+            font-size: 2rem;
+            font-weight: 700;
+        }
+
+        .balance-value.positive {
+            color: #4caf50;
+        }
+
+        .balance-value.negative {
+            color: #ff6b6b;
+        }
+
+        .balance-value.neutral {
+            color: #667eea;
+        }
+
+        .workspace {
+            display: grid;
+            grid-template-columns: 350px 1fr;
+            gap: 30px;
+            margin-top: 30px;
+        }
+
+        .panel {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 30px;
+            backdrop-filter: blur(10px);
+        }
+
+        .panel-title {
+            font-size: 1.5rem;
+            margin-bottom: 25px;
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        .expenses-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            max-height: 500px;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+
+        .expenses-list::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .expenses-list::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+        }
+
+        .expenses-list::-webkit-scrollbar-thumb {
+            background: rgba(102, 126, 234, 0.5);
+            border-radius: 10px;
+        }
+
+        .expense-item {
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .expense-item:hover {
+            background: rgba(102, 126, 234, 0.1);
+            border-color: rgba(102, 126, 234, 0.3);
+            transform: translateX(5px);
+        }
+
+        .expense-item.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .expense-item.disabled:hover {
+            transform: none;
+        }
+
+        .expense-info {
+            flex: 1;
+        }
+
+        .expense-name {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .expense-desc {
+            font-size: 0.85rem;
+            color: #888;
+        }
+
+        .expense-cost {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #ff6b6b;
+        }
+
+        .events-feed {
+            max-height: 600px;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+
+        .events-feed::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .events-feed::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+        }
+
+        .events-feed::-webkit-scrollbar-thumb {
+            background: rgba(102, 126, 234, 0.5);
+            border-radius: 10px;
+        }
+
+        .event-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-left: 4px solid #667eea;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            animation: slideIn 0.5s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .event-card.expense {
+            border-left-color: #ff6b6b;
+        }
+
+        .event-card.income {
+            border-left-color: #4caf50;
+        }
+
+        .event-card.random {
+            border-left-color: #ffc107;
+        }
+
+        .event-time {
+            font-size: 0.85rem;
+            color: #888;
+            margin-bottom: 8px;
+        }
+
+        .event-text {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            margin-bottom: 10px;
+        }
+
+        .event-amount {
+            font-size: 1.3rem;
+            font-weight: 700;
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 30px;
+        }
+
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #764ba2;
+            transform: translateY(-2px);
+        }
+
+        .btn-success {
+            background: rgba(76, 175, 80, 0.2);
+            border: 2px solid #4caf50;
+            color: #4caf50;
+        }
+
+        .btn-success:hover {
+            background: #4caf50;
+            color: white;
+        }
+
+        .btn-danger {
+            background: rgba(255, 107, 107, 0.2);
+            border: 2px solid #ff6b6b;
+            color: #ff6b6b;
+        }
+
+        .btn-danger:hover {
+            background: #ff6b6b;
+            color: white;
+        }
+
+        .game-over {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .game-over.show {
+            display: flex;
+        }
+
+        .game-over-content {
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(102, 126, 234, 0.5);
+            border-radius: 20px;
+            padding: 50px;
+            text-align: center;
+            max-width: 600px;
+            animation: scaleIn 0.5s ease;
+        }
+
+        @keyframes scaleIn {
+            from {
+                transform: scale(0.8);
+                opacity: 0;
+            }
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .game-over-title {
+            font-size: 3rem;
+            margin-bottom: 20px;
+        }
+
+        .game-over-message {
+            font-size: 1.3rem;
+            color: #b0b0b0;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+
+        .game-over-stats {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+        }
+
+        .game-over-stat {
+            font-size: 1.1rem;
+            margin: 10px 0;
+        }
+
+        @media (max-width: 1024px) {
+            .workspace {
+                grid-template-columns: 1fr;
+            }
+            
+            .home-btn {
+                position: static;
+                margin-bottom: 20px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            h1 { font-size: 2.5rem; }
+            .balance-display { flex-direction: column; gap: 15px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <a href="#" class="home-btn" onclick="window.location.href='index.html'; return false;">← Home</a>
+            <h1>💰 Budget Simulator</h1>
+            <p class="subtitle">Can you survive the month without going broke?</p>
+        </header>
+
+        <div class="game-status">
+            <div class="status-label">Current Day</div>
+            <div class="day-counter" id="dayCounter">Day 1 / 30</div>
+            
+            <div class="balance-display">
+                <div class="balance-item">
+                    <div class="balance-label">Your Balance</div>
+                    <div class="balance-value positive" id="balance">$2,500</div>
+                </div>
+                <div class="balance-item">
+                    <div class="balance-label">Monthly Income</div>
+                    <div class="balance-value neutral">$3,000</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="workspace">
+            <!-- Expenses Panel -->
+            <div class="panel">
+                <h3 class="panel-title">💸 Your Expenses</h3>
+                <div class="expenses-list" id="expensesList"></div>
+                
+                <div class="controls">
+                    <button class="btn btn-success" onclick="workExtraHours()" id="workBtn">
+                        💼 Work Extra Hours
+                    </button>
+                </div>
+            </div>
+
+            <!-- Events Feed -->
+            <div class="panel">
+                <h3 class="panel-title">📰 Events Log</h3>
+                <div class="events-feed" id="eventsFeed">
+                    <div class="event-card income">
+                        <div class="event-time">Day 1 - Morning</div>
+                        <div class="event-text">💼 You received your monthly salary!</div>
+                        <div class="event-amount" style="color: #4caf50;">+$3,000</div>
+                    </div>
+                    <div class="event-card" style="border-left-color: #667eea;">
+                        <div class="event-time">Day 1 - Morning</div>
+                        <div class="event-text">🎮 Welcome to Budget Simulator! Try to survive 30 days without going bankrupt. Click on expenses to pay them, and watch out for random events!</div>
+                    </div>
+                </div>
+
+                <div class="controls">
+                    <button class="btn btn-primary" onclick="nextDay()">
+                        ⏭️ Next Day
+                    </button>
+                    <button class="btn btn-danger" onclick="resetGame()">
+                        🔄 Restart
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Game Over Screen -->
+    <div class="game-over" id="gameOver">
+        <div class="game-over-content">
+            <div class="game-over-title" id="gameOverTitle">💸</div>
+            <div class="game-over-message" id="gameOverMessage"></div>
+            <div class="game-over-stats" id="gameOverStats"></div>
+            <button class="btn btn-primary" onclick="resetGame()">
+                🔄 Try Again
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const expenses = [
+            { name: 'Rent', cost: 1200, desc: 'Monthly rent payment - essential!', frequency: 1, lastPaid: 0, required: true },
+            { name: 'Groceries', cost: 300, desc: 'Food for the month', frequency: 7, lastPaid: 0, required: true },
+            { name: 'Electricity Bill', cost: 80, desc: 'Keep the lights on', frequency: 1, lastPaid: 0, required: true },
+            { name: 'Internet', cost: 60, desc: 'For work and entertainment', frequency: 1, lastPaid: 0, required: true },
+            { name: 'Phone Bill', cost: 50, desc: 'Stay connected', frequency: 1, lastPaid: 0, required: true },
+            { name: 'Coffee', cost: 25, desc: 'Daily caffeine fix ☕', frequency: 3, lastPaid: 0, required: false },
+            { name: 'Fast Food', cost: 40, desc: 'Too tired to cook...', frequency: 3, lastPaid: 0, required: false },
+            { name: 'Movie Night', cost: 35, desc: 'Entertainment is important!', frequency: 7, lastPaid: 0, required: false },
+            { name: 'New Clothes', cost: 80, desc: 'That sale is too good...', frequency: 10, lastPaid: 0, required: false },
+            { name: 'Gym Membership', cost: 45, desc: 'This year I\'ll use it!', frequency: 1, lastPaid: 0, required: false },
+        ];
+
+        const randomEvents = [
+            { text: '🚗 Your car broke down!', amount: -250, emoji: '😱' },
+            { text: '🏥 Medical emergency - urgent care visit', amount: -150, emoji: '🤕' },
+            { text: '🎉 Your friend\'s birthday party - gift time!', amount: -75, emoji: '🎁' },
+            { text: '📱 Your phone screen cracked!', amount: -120, emoji: '😭' },
+            { text: '🦷 Dental emergency!', amount: -200, emoji: '😬' },
+            { text: '🎮 New game release - must have it!', amount: -60, emoji: '🤩' },
+            { text: '👕 Your favorite shirt ripped - shopping time!', amount: -45, emoji: '😅' },
+            { text: '☕ Coffee machine broke - emergency purchase!', amount: -80, emoji: '😫' },
+            { text: '🎫 Concert tickets - your favorite band!', amount: -120, emoji: '🎸' },
+            { text: '📚 Required textbook for work training', amount: -95, emoji: '📖' },
+            { text: '🐕 Pet emergency - vet visit', amount: -180, emoji: '🐶' },
+            { text: '🚕 Missed the bus - taxi ride!', amount: -30, emoji: '🚖' },
+            { text: '💻 Laptop charger died', amount: -50, emoji: '🔌' },
+            { text: '🎰 Found $20 on the street!', amount: 20, emoji: '🤑' },
+            { text: '💼 Bonus from work!', amount: 100, emoji: '🎊' },
+            { text: '🎂 Surprise birthday money!', amount: 50, emoji: '🎈' },
+            { text: '♻️ Sold old stuff online', amount: 75, emoji: '💵' },
+            { text: '🏆 Won a small lottery prize!', amount: 200, emoji: '🎉' },
+            { text: '🍕 Friend bought you pizza!', amount: 15, emoji: '😋' },
+            { text: '💡 Got a refund from overpayment!', amount: 60, emoji: '✨' },
+        ];
+
+        let balance = 2500;
+        let currentDay = 1;
+        let totalSpent = 0;
+        let totalEarned = 3000;
+        let workExtraAvailable = true;
+
+        function renderExpenses() {
+            const list = document.getElementById('expensesList');
+            list.innerHTML = expenses.map((expense, index) => {
+                const daysSincePayment = currentDay - expense.lastPaid;
+                const isOverdue = daysSincePayment > expense.frequency;
+                const canAfford = balance >= expense.cost;
+                
+                return `
+                    <div class="expense-item ${!canAfford ? 'disabled' : ''}" 
+                         onclick="${canAfford ? `payExpense(${index})` : 'cantAfford()'}">
+                        <div class="expense-info">
+                            <div class="expense-name">
+                                ${expense.name} 
+                                ${expense.required ? '⚠️' : ''}
+                                ${isOverdue && expense.required ? '❗' : ''}
+                            </div>
+                            <div class="expense-desc">${expense.desc}</div>
+                            ${isOverdue && expense.required ? '<div style="color: #ff6b6b; font-size: 0.8rem;">⏰ OVERDUE!</div>' : ''}
+                        </div>
+                        <div class="expense-cost">$${expense.cost}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function payExpense(index) {
+            const expense = expenses[index];
+            if (balance >= expense.cost) {
+                balance -= expense.cost;
+                totalSpent += expense.cost;
+                expense.lastPaid = currentDay;
+                
+                addEvent(`💸 Paid: ${expense.name}`, -expense.cost, 'expense');
+                updateDisplay();
+                renderExpenses();
+                
+                checkGameStatus();
+            }
+        }
+
+        function cantAfford() {
+            addEvent('❌ Not enough money for that!', 0, 'random');
+        }
+
+        function workExtraHours() {
+            if (!workExtraAvailable) {
+                addEvent('😴 Too tired to work extra today!', 0, 'random');
+                return;
+            }
+            
+            const earnings = Math.floor(Math.random() * 100) + 150;
+            balance += earnings;
+            totalEarned += earnings;
+            workExtraAvailable = false;
+            
+            document.getElementById('workBtn').disabled = true;
+            document.getElementById('workBtn').style.opacity = '0.5';
+            
+            addEvent('💼 Worked extra hours - exhausted but richer!', earnings, 'income');
+            updateDisplay();
+            
+            checkGameStatus();
+        }
+
+        function nextDay() {
+            currentDay++;
+            
+            if (currentDay > 30) {
+                endGame(true);
+                return;
+            }
+            
+            // Reset work availability
+            workExtraAvailable = true;
+            document.getElementById('workBtn').disabled = false;
+            document.getElementById('workBtn').style.opacity = '1';
+            
+            // Random events (40% chance)
+            if (Math.random() < 0.4) {
+                const event = randomEvents[Math.floor(Math.random() * randomEvents.length)];
+                balance += event.amount;
+                if (event.amount < 0) totalSpent += Math.abs(event.amount);
+                else totalEarned += event.amount;
+                
+                addEvent(`${event.emoji} ${event.text}`, event.amount, 'random');
+            }
+            
+            // Check overdue bills
+            expenses.forEach(expense => {
+                const daysSincePayment = currentDay - expense.lastPaid;
+                if (daysSincePayment > expense.frequency * 2 && expense.required) {
+                    const penalty = Math.floor(expense.cost * 0.5);
+                    balance -= penalty;
+                    totalSpent += penalty;
+                    addEvent(`⚠️ Late fee for ${expense.name}!`, -penalty, 'expense');
+                }
+            });
+            
+            updateDisplay();
+            renderExpenses();
+            checkGameStatus();
+        }
+
+        function addEvent(text, amount, type) {
+            const feed = document.getElementById('eventsFeed');
+            const timeOfDay = ['Morning', 'Afternoon', 'Evening'][Math.floor(Math.random() * 3)];
+            
+            const eventCard = document.createElement('div');
+            eventCard.className = `event-card ${type}`;
+            eventCard.innerHTML = `
+                <div class="event-time">Day ${currentDay} - ${timeOfDay}</div>
+                <div class="event-text">${text}</div>
+                ${amount !== 0 ? `<div class="event-amount" style="color: ${amount > 0 ? '#4caf50' : '#ff6b6b'};">${amount > 0 ? '+' : ''}$${amount}</div>` : ''}
+            `;
+            
+            feed.insertBefore(eventCard, feed.firstChild);
+            
+            // Keep only last 20 events
+            while (feed.children.length > 20) {
+                feed.removeChild(feed.lastChild);
+            }
+        }
+
+        function updateDisplay() {
+            document.getElementById('dayCounter').textContent = `Day ${currentDay} / 30`;
+            document.getElementById('balance').textContent = `$${balance.toFixed(0)}`;
+            
+            const balanceEl = document.getElementById('balance');
+            if (balance < 0) {
+                balanceEl.className = 'balance-value negative';
+            } else if (balance < 500) {
+                balanceEl.className = 'balance-value neutral';
+            } else {
+                balanceEl.className = 'balance-value positive';
+            }
+        }
+
+        function checkGameStatus() {
+            // Check if bankrupt
+            if (balance < -500) {
+                endGame(false);
+            }
+            
+            // Check if too many overdue bills
+            const overdueBills = expenses.filter(e => 
+                e.required && (currentDay - e.lastPaid) > e.frequency * 3
+            ).length;
+            
+            if (overdueBills >= 3) {
+                endGame(false, 'Too many unpaid bills! You got evicted! 🏚️');
+            }
+        }
+
+        function endGame(won, customMessage = null) {
+            const gameOver = document.getElementById('gameOver');
+            const title = document.getElementById('gameOverTitle');
+            const message = document.getElementById('gameOverMessage');
+            const stats = document.getElementById('gameOverStats');
+            
+            if (won) {
+                title.textContent = '🎉';
+                message.textContent = 'Congratulations! You survived the month! You\'re a budgeting master!';
+            } else {
+                title.textContent = '💸';
+                message.textContent = customMessage || 'Game Over! You went bankrupt! 😭';
+            }
+            
+            stats.innerHTML = `
+                <div class="game-over-stat">Days Survived: ${currentDay}/30</div>
+                <div class="game-over-stat">Final Balance: $${balance.toFixed(0)}</div>
+                <div class="game-over-stat">Total Earned: $${totalEarned}</div>
+                <div class="game-over-stat">Total Spent: $${totalSpent}</div>
+                <div class="game-over-stat">Savings Rate: ${((totalEarned - totalSpent) / totalEarned * 100).toFixed(1)}%</div>
+            `;
+            
+            gameOver.classList.add('show');
+        }
+
+        function resetGame() {
+            balance = 2500;
+            currentDay = 1;
+            totalSpent = 0;
+            totalEarned = 3000;
+            workExtraAvailable = true;
+            
+            expenses.forEach(expense => expense.lastPaid = 0);
+            
+            document.getElementById('gameOver').classList.remove('show');
+            document.getElementById('eventsFeed').innerHTML = `
+                <div class="event-card income">
+                    <div class="event-time">Day 1 - Morning</div>
+                    <div class="event-text">💼 You received your monthly salary!</div>
+                    <div class="event-amount" style="color: #4caf50;">+$3,000</div>
+                </div>
+                <div class="event-card" style="border-left-color: #667eea;">
+                    <div class="event-time">Day 1 - Morning</div>
+                    <div class="event-text">🎮 Welcome to Budget Simulator! Try to survive 30 days without going bankrupt. Click on expenses to pay them, and watch out for random events!</div>
+                </div>
+            `;
+            
+            updateDisplay();
+            renderExpenses();
+        }
+
+        // Initialize
+        window.addEventListener('DOMContentLoaded', function() {
+            renderExpenses();
+            updateDisplay();
+        });
+    </script>
+</body>
+</html>

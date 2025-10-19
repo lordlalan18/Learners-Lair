@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Daily News</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 100%);
+            color: #e0e0e0;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            padding: 40px 20px;
+            position: relative;
+        }
+
+        .home-btn {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(102, 126, 234, 0.1);
+            border: 2px solid #667eea;
+            color: #667eea;
+            padding: 12px 25px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .home-btn:hover {
+            background: #667eea;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        h1 {
+            font-size: 3.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #888;
+            font-size: 1.1rem;
+            letter-spacing: 1px;
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin: 30px 0;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+
+        .category-btn {
+            background: rgba(102, 126, 234, 0.1);
+            border: 2px solid rgba(102, 126, 234, 0.3);
+            color: #667eea;
+            padding: 12px 25px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .category-btn:hover {
+            background: rgba(102, 126, 234, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .category-btn.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .search-box {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin: 20px 0;
+        }
+
+        .search-input {
+            flex: 1;
+            max-width: 500px;
+            padding: 15px 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 25px;
+            color: #e0e0e0;
+            font-size: 1rem;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .search-input:focus {
+            border-color: #667eea;
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .search-btn {
+            padding: 15px 30px;
+            background: #667eea;
+            border: none;
+            border-radius: 25px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .search-btn:hover {
+            background: #764ba2;
+            transform: translateY(-2px);
+        }
+
+        .loading {
+            text-align: center;
+            padding: 60px 20px;
+            font-size: 1.2rem;
+            color: #667eea;
+        }
+
+        .news-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 25px;
+            padding: 20px 0;
+        }
+
+        .news-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 25px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .news-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(102, 126, 234, 0.5);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.2);
+        }
+
+        .news-source {
+            display: inline-block;
+            color: #667eea;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .news-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #fff;
+            line-height: 1.4;
+        }
+
+        .news-description {
+            color: #999;
+            line-height: 1.6;
+            margin-bottom: 15px;
+            font-size: 0.95rem;
+        }
+
+        .news-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.85rem;
+            color: #666;
+            padding-top: 15px;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .news-date {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .read-more {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.3s ease;
+        }
+
+        .read-more:hover {
+            color: #764ba2;
+        }
+
+        .error-message {
+            text-align: center;
+            padding: 60px 20px;
+            color: #ff6b6b;
+            font-size: 1.1rem;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 80px 20px;
+        }
+
+        .empty-state-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+        }
+
+        .empty-state-text {
+            color: #888;
+            font-size: 1.2rem;
+        }
+
+        @media (max-width: 768px) {
+            h1 { font-size: 2.5rem; }
+            .news-grid { grid-template-columns: 1fr; }
+            .controls { flex-direction: column; }
+            .search-box { flex-direction: column; }
+            .search-input { max-width: 100%; }
+            .home-btn {
+                position: static;
+                margin-bottom: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <a href="#" class="home-btn" onclick="window.location.href='index.html'; return false;">← Home</a>
+            <h1>📰 The Daily News</h1>
+            <p class="subtitle">Stay informed with the latest headlines</p>
+        </header>
+
+        <div class="controls">
+            <button class="category-btn active" data-category="general">General</button>
+            <button class="category-btn" data-category="technology">Technology</button>
+            <button class="category-btn" data-category="business">Business</button>
+            <button class="category-btn" data-category="science">Science</button>
+            <button class="category-btn" data-category="health">Health</button>
+            <button class="category-btn" data-category="sports">Sports</button>
+            <button class="category-btn" data-category="entertainment">Entertainment</button>
+        </div>
+
+        <div class="search-box">
+            <input type="text" class="search-input" placeholder="Search for specific news topics..." id="searchInput">
+            <button class="search-btn" id="searchBtn">Search</button>
+        </div>
+
+        <div id="newsContainer">
+            <div class="loading">Loading latest news...</div>
+        </div>
+    </div>
+
+    <script>
+        let currentCategory = 'general';
+        let newsData = [];
+
+        const categories = document.querySelectorAll('.category-btn');
+        const newsContainer = document.getElementById('newsContainer');
+        const searchInput = document.getElementById('searchInput');
+        const searchBtn = document.getElementById('searchBtn');
+
+        categories.forEach(btn => {
+            btn.addEventListener('click', () => {
+                categories.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentCategory = btn.dataset.category;
+                searchInput.value = '';
+                fetchNews();
+            });
+        });
+
+        searchBtn.addEventListener('click', () => {
+            const query = searchInput.value.trim();
+            if (query) {
+                searchNews(query);
+            }
+        });
+
+        searchInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                const query = searchInput.value.trim();
+                if (query) {
+                    searchNews(query);
+                }
+            }
+        });
+
+        function searchNews(query) {
+            newsContainer.innerHTML = '<div class="loading">Searching for news...</div>';
+            
+            // Simulated news search - In production, this would use a real news API
+            setTimeout(() => {
+                const searchResults = [
+                    {
+                        source: 'Tech Daily',
+                        title: `Breaking: ${query} makes headlines`,
+                        description: `Latest developments in ${query} are shaping the industry. Experts weigh in on what this means for the future.`,
+                        url: '#',
+                        date: new Date().toISOString()
+                    },
+                    {
+                        source: 'Global Times',
+                        title: `Analysis: Understanding ${query} in today's context`,
+                        description: `An in-depth look at ${query} and its implications across various sectors.`,
+                        url: '#',
+                        date: new Date(Date.now() - 86400000).toISOString()
+                    }
+                ];
+                displayNews(searchResults);
+            }, 800);
+        }
+
+        function fetchNews() {
+            newsContainer.innerHTML = '<div class="loading">Loading latest news...</div>';
+            
+            // Simulated news data - In production, this would fetch from a real news API
+            setTimeout(() => {
+                const mockNews = generateMockNews(currentCategory);
+                displayNews(mockNews);
+            }, 1000);
+        }
+
+        function generateMockNews(category) {
+            const sources = ['Reuters', 'Associated Press', 'Bloomberg', 'Tech Times', 'Science Daily', 'Health Watch'];
+            const articles = [];
+            
+            for (let i = 0; i < 12; i++) {
+                articles.push({
+                    source: sources[Math.floor(Math.random() * sources.length)],
+                    title: getRandomTitle(category),
+                    description: getRandomDescription(category),
+                    url: '#',
+                    date: new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000).toISOString()
+                });
+            }
+            
+            return articles;
+        }
+
+        function getRandomTitle(category) {
+            const titles = {
+                general: [
+                    'Major policy changes announced by government officials',
+                    'International summit concludes with historic agreement',
+                    'Economic indicators show surprising trends this quarter',
+                    'New environmental initiative gains global support'
+                ],
+                technology: [
+                    'Revolutionary AI model achieves breakthrough in language understanding',
+                    'Major tech company unveils next-generation hardware',
+                    'Cybersecurity experts warn of emerging threat landscape',
+                    'Quantum computing milestone reached by research team'
+                ],
+                business: [
+                    'Stock markets rally on positive economic data',
+                    'Leading corporation announces massive investment plan',
+                    'Startup ecosystem sees record funding this quarter',
+                    'Trade agreements reshape global supply chains'
+                ],
+                science: [
+                    'Groundbreaking discovery in particle physics announced',
+                    'Climate research reveals unexpected patterns',
+                    'Medical breakthrough offers hope for treatment',
+                    'Space exploration mission achieves historic milestone'
+                ],
+                health: [
+                    'New study reveals insights into chronic disease prevention',
+                    'Healthcare innovation improves patient outcomes',
+                    'Mental health awareness campaign launches nationwide',
+                    'Nutrition research challenges conventional wisdom'
+                ],
+                sports: [
+                    'Championship game delivers thrilling overtime finish',
+                    'Olympic athlete breaks long-standing world record',
+                    'Major league announces expansion plans',
+                    'Rising star makes history with unprecedented performance'
+                ],
+                entertainment: [
+                    'Award-winning film breaks box office records',
+                    'Music festival announces star-studded lineup',
+                    'Streaming platform reveals most-watched content',
+                    'Entertainment industry adapts to changing viewer habits'
+                ]
+            };
+            
+            const categoryTitles = titles[category] || titles.general;
+            return categoryTitles[Math.floor(Math.random() * categoryTitles.length)];
+        }
+
+        function getRandomDescription(category) {
+            const descriptions = [
+                'Industry experts are weighing in on the implications of this development and what it means for the future.',
+                'This announcement has sparked widespread discussion among stakeholders and the general public alike.',
+                'Analysts suggest this could mark a significant turning point in the sector.',
+                'The news has generated considerable interest and is expected to have far-reaching effects.',
+                'Officials have released statements addressing key concerns and outlining next steps.',
+                'This development follows months of anticipation and speculation within the community.'
+            ];
+            
+            return descriptions[Math.floor(Math.random() * descriptions.length)];
+        }
+
+        function displayNews(articles) {
+            if (articles.length === 0) {
+                newsContainer.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📭</div>
+                        <div class="empty-state-text">No news articles found</div>
+                    </div>
+                `;
+                return;
+            }
+
+            const newsHTML = articles.map(article => `
+                <div class="news-card">
+                    <div class="news-source">${article.source}</div>
+                    <h3 class="news-title">${article.title}</h3>
+                    <p class="news-description">${article.description}</p>
+                    <div class="news-meta">
+                        <span class="news-date">
+                            🕒 ${formatDate(article.date)}
+                        </span>
+                        <a href="${article.url}" class="read-more" target="_blank">Read More →</a>
+                    </div>
+                </div>
+            `).join('');
+
+            newsContainer.innerHTML = `<div class="news-grid">${newsHTML}</div>`;
+        }
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            const now = new Date();
+            const diffTime = Math.abs(now - date);
+            const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+            const diffHours = Math.floor(diffTime / (1000 * 60 * 60));
+            
+            if (diffHours < 1) return 'Just now';
+            if (diffHours < 24) return `${diffHours}h ago`;
+            if (diffDays === 1) return 'Yesterday';
+            if (diffDays < 7) return `${diffDays}d ago`;
+            
+            return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+        }
+
+        // Initial load
+        fetchNews();
+    </script>
+</body>
+</html>

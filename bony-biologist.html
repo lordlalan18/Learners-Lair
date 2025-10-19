@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Virtual Garden Lab</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 100%);
+            color: #e0e0e0;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            padding: 40px 20px;
+            position: relative;
+        }
+
+        .home-btn {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(102, 126, 234, 0.1);
+            border: 2px solid #667eea;
+            color: #667eea;
+            padding: 12px 25px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .home-btn:hover {
+            background: #667eea;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        h1 {
+            font-size: 3.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #888;
+            font-size: 1.1rem;
+            letter-spacing: 1px;
+        }
+
+        .workspace {
+            display: grid;
+            grid-template-columns: 350px 1fr;
+            gap: 30px;
+            margin-top: 30px;
+        }
+
+        .panel {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 30px;
+            backdrop-filter: blur(10px);
+        }
+
+        .panel-title {
+            font-size: 1.5rem;
+            margin-bottom: 25px;
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        .plant-catalog {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            max-height: 500px;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+
+        .plant-catalog::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .plant-catalog::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+        }
+
+        .plant-catalog::-webkit-scrollbar-thumb {
+            background: rgba(102, 126, 234, 0.5);
+            border-radius: 10px;
+        }
+
+        .plant-item {
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .plant-item:hover {
+            background: rgba(102, 126, 234, 0.1);
+            border-color: rgba(102, 126, 234, 0.3);
+            transform: translateX(5px);
+        }
+
+        .plant-item.selected {
+            background: rgba(102, 126, 234, 0.2);
+            border-color: #667eea;
+        }
+
+        .plant-emoji {
+            font-size: 2.5rem;
+        }
+
+        .plant-details {
+            flex: 1;
+        }
+
+        .plant-name {
+            font-weight: 600;
+            font-size: 1.1rem;
+            margin-bottom: 5px;
+        }
+
+        .plant-type {
+            font-size: 0.85rem;
+            color: #888;
+            margin-bottom: 8px;
+        }
+
+        .plant-facts {
+            font-size: 0.8rem;
+            color: #999;
+            line-height: 1.4;
+        }
+
+        .garden-area {
+            min-height: 600px;
+            background: linear-gradient(180deg, rgba(135, 206, 250, 0.1) 0%, rgba(34, 139, 34, 0.2) 100%);
+            border-radius: 15px;
+            padding: 30px;
+            position: relative;
+        }
+
+        .weather-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .weather-btn {
+            padding: 10px 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            color: #e0e0e0;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+        }
+
+        .weather-btn:hover {
+            background: rgba(102, 126, 234, 0.1);
+            border-color: rgba(102, 126, 234, 0.3);
+        }
+
+        .weather-btn.active {
+            background: rgba(102, 126, 234, 0.2);
+            border-color: #667eea;
+            color: #667eea;
+        }
+
+        .garden-grid {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .garden-slot {
+            aspect-ratio: 1;
+            background: rgba(34, 139, 34, 0.2);
+            border: 2px dashed rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            padding: 10px;
+        }
+
+        .garden-slot:hover {
+            background: rgba(34, 139, 34, 0.3);
+            transform: scale(1.05);
+        }
+
+        .garden-slot.planted {
+            border-style: solid;
+            border-color: #4caf50;
+            background: rgba(34, 139, 34, 0.3);
+        }
+
+        .garden-slot.planted:hover {
+            border-color: #ff6b6b;
+            cursor: pointer;
+        }
+
+        .slot-emoji {
+            font-size: 3rem;
+            animation: grow 0.5s ease;
+        }
+
+        @keyframes grow {
+            0% { transform: scale(0); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+
+        .slot-info {
+            font-size: 0.7rem;
+            color: #888;
+            text-align: center;
+            margin-top: 5px;
+        }
+
+        .growth-stage {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: rgba(102, 126, 234, 0.8);
+            color: white;
+            padding: 3px 8px;
+            border-radius: 10px;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+
+        .info-panel {
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(102, 126, 234, 0.3);
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .info-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+
+        .info-content {
+            color: #b0b0b0;
+            line-height: 1.6;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-box {
+            background: rgba(255, 255, 255, 0.03);
+            padding: 15px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            color: #888;
+            margin-bottom: 8px;
+        }
+
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #667eea;
+        }
+
+        .action-btns {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #764ba2;
+            transform: translateY(-2px);
+        }
+
+        .btn-danger {
+            background: rgba(255, 107, 107, 0.2);
+            border: 2px solid #ff6b6b;
+            color: #ff6b6b;
+        }
+
+        .btn-danger:hover {
+            background: #ff6b6b;
+            color: white;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(76, 175, 80, 0.9);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 10px;
+            font-weight: 600;
+            animation: slideIn 0.3s ease;
+            z-index: 1000;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @media (max-width: 1024px) {
+            .workspace {
+                grid-template-columns: 1fr;
+            }
+            
+            .garden-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+            
+            .home-btn {
+                position: static;
+                margin-bottom: 20px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            h1 { font-size: 2.5rem; }
+            .garden-grid { grid-template-columns: repeat(3, 1fr); }
+            .stats-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <a href="#" class="home-btn" onclick="window.location.href='index.html'; return false;">← Home</a>
+            <h1>🌱 Virtual Garden Lab</h1>
+            <p class="subtitle">Learn about plants by growing your own garden!</p>
+        </header>
+
+        <div class="workspace">
+            <!-- Plant Catalog -->
+            <div class="panel">
+                <h3 class="panel-title">🌿 Plant Catalog</h3>
+                <div class="plant-catalog" id="plantCatalog"></div>
+            </div>
+
+            <!-- Garden Area -->
+            <div class="panel">
+                <h3 class="panel-title">🏡 Your Garden</h3>
+                
+                <div class="stats-grid">
+                    <div class="stat-box">
+                        <div class="stat-label">Plants</div>
+                        <div class="stat-value" id="plantCount">0</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-label">Species</div>
+                        <div class="stat-value" id="speciesCount">0</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-label">Growth</div>
+                        <div class="stat-value" id="avgGrowth">0%</div>
+                    </div>
+                </div>
+
+                <div class="weather-controls">
+                    <button class="weather-btn active" onclick="setWeather('sunny')">☀️ Sunny</button>
+                    <button class="weather-btn" onclick="setWeather('rainy')">🌧️ Rainy</button>
+                    <button class="weather-btn" onclick="setWeather('cloudy')">☁️ Cloudy</button>
+                </div>
+
+                <div class="garden-area">
+                    <div class="garden-grid" id="gardenGrid"></div>
+                </div>
+
+                <div class="action-btns">
+                    <button class="btn btn-primary" onclick="waterGarden()">💧 Water All Plants</button>
+                </div>
+                <div style="text-align: center; color: #888; font-size: 0.9rem; margin-top: 15px;">
+                    💡 Tip: Double-click any plant to remove it
+                </div>
+
+                <div class="info-panel" id="infoPanel">
+                    <div class="info-title">ℹ️ Plant Information</div>
+                    <div class="info-content">
+                        Click on a plant in the catalog to learn about it, then click an empty slot in the garden to plant it!
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const plants = [
+            { 
+                emoji: '🌻', 
+                name: 'Sunflower', 
+                type: 'Annual Flower',
+                facts: 'Sunflowers follow the sun across the sky (heliotropism). They can grow up to 12 feet tall!',
+                water: 'High',
+                sunlight: 'Full sun',
+                growthRate: 'Fast',
+                info: 'Sunflowers are native to North America and were first cultivated by Native Americans around 3000 BC. Their seeds are edible and rich in vitamin E.'
+            },
+            { 
+                emoji: '🌹', 
+                name: 'Rose', 
+                type: 'Perennial Flower',
+                facts: 'Roses have been cultivated for over 5000 years. There are over 150 species worldwide!',
+                water: 'Medium',
+                sunlight: 'Full sun',
+                growthRate: 'Medium',
+                info: 'Roses belong to the Rosaceae family. They need well-drained soil and at least 6 hours of sunlight daily. Rose hips are rich in vitamin C.'
+            },
+            { 
+                emoji: '🌷', 
+                name: 'Tulip', 
+                type: 'Bulb Flower',
+                facts: 'Tulips were once more valuable than gold in Holland during "Tulip Mania" (1634-1637)!',
+                water: 'Low',
+                sunlight: 'Full sun',
+                growthRate: 'Fast',
+                info: 'Tulips originated in Central Asia and were brought to Europe in the 16th century. They bloom in spring and go dormant in summer.'
+            },
+            { 
+                emoji: '🌺', 
+                name: 'Hibiscus', 
+                type: 'Tropical Flower',
+                facts: 'Hibiscus flowers only bloom for one day but the plant produces many flowers continuously!',
+                water: 'High',
+                sunlight: 'Full sun',
+                growthRate: 'Fast',
+                info: 'Hibiscus is the national flower of Malaysia. The flowers are used to make tea and natural dyes. They attract butterflies and hummingbirds.'
+            },
+            { 
+                emoji: '🌸', 
+                name: 'Cherry Blossom', 
+                type: 'Tree Flower',
+                facts: 'Cherry blossoms symbolize the beauty and fragility of life in Japanese culture.',
+                water: 'Medium',
+                sunlight: 'Full sun',
+                growthRate: 'Slow',
+                info: 'Cherry blossom viewing (Hanami) is a centuries-old Japanese tradition. The blossoms only last about 2 weeks each spring.'
+            },
+            { 
+                emoji: '🌼', 
+                name: 'Daisy', 
+                type: 'Perennial Flower',
+                facts: 'Daisies close their petals at night and open them in the morning - they "go to sleep"!',
+                water: 'Medium',
+                sunlight: 'Full sun',
+                growthRate: 'Fast',
+                info: 'The name "daisy" comes from "day\'s eye" because they open at dawn. They\'re actually two flowers in one - the center and petals are separate!'
+            },
+            { 
+                emoji: '🌵', 
+                name: 'Cactus', 
+                type: 'Succulent',
+                facts: 'Cacti can store water in their stems and survive for years without rain!',
+                water: 'Very Low',
+                sunlight: 'Full sun',
+                growthRate: 'Very Slow',
+                info: 'Cacti have spines instead of leaves to reduce water loss. The Saguaro cactus can live for 200 years and grow 40 feet tall!'
+            },
+            { 
+                emoji: '🌿', 
+                name: 'Fern', 
+                type: 'Foliage Plant',
+                facts: 'Ferns are ancient plants - they existed before flowers evolved, over 360 million years ago!',
+                water: 'High',
+                sunlight: 'Shade',
+                growthRate: 'Medium',
+                info: 'Ferns reproduce through spores, not seeds. They thrive in humid, shady environments and improve air quality by filtering toxins.'
+            },
+            { 
+                emoji: '🌴', 
+                name: 'Palm Tree', 
+                type: 'Tree',
+                facts: 'Palm trees can bend in strong winds without breaking - some can bend up to 50 degrees!',
+                water: 'Medium',
+                sunlight: 'Full sun',
+                growthRate: 'Slow',
+                info: 'Palms are not technically trees but large woody plants. There are over 2,600 species. Coconuts can float in water for months!'
+            },
+            { 
+                emoji: '🌳', 
+                name: 'Oak Tree', 
+                type: 'Deciduous Tree',
+                facts: 'A mature oak tree can produce 2,000 acorns per year and support over 2,300 species of wildlife!',
+                water: 'Medium',
+                sunlight: 'Full sun',
+                growthRate: 'Slow',
+                info: 'Oak trees can live for 1,000+ years. Their wood is incredibly strong and was used to build ships. They produce oxygen for 4 people!'
+            },
+            { 
+                emoji: '🌲', 
+                name: 'Pine Tree', 
+                type: 'Conifer',
+                facts: 'Pine trees stay green all year (evergreen) and some can live for over 1,000 years!',
+                water: 'Low',
+                sunlight: 'Full sun',
+                growthRate: 'Medium',
+                info: 'Pine cones protect seeds until conditions are right for growth. Pine trees provide homes for many birds and animals.'
+            },
+            { 
+                emoji: '🍀', 
+                name: 'Clover', 
+                type: 'Ground Cover',
+                facts: 'Four-leaf clovers are rare mutations - only 1 in 10,000 clovers has four leaves!',
+                water: 'Medium',
+                sunlight: 'Full sun',
+                growthRate: 'Fast',
+                info: 'Clover adds nitrogen to soil, helping other plants grow. It\'s an important food source for bees and butterflies.'
+            },
+        ];
+
+        let garden = Array(24).fill(null);
+        let selectedPlant = null;
+        let currentWeather = 'sunny';
+        let growthInterval = null;
+
+        function renderCatalog() {
+            const catalog = document.getElementById('plantCatalog');
+            catalog.innerHTML = plants.map((plant, index) => `
+                <div class="plant-item ${selectedPlant === index ? 'selected' : ''}" 
+                     onclick="selectPlant(${index})">
+                    <div class="plant-emoji">${plant.emoji}</div>
+                    <div class="plant-details">
+                        <div class="plant-name">${plant.name}</div>
+                        <div class="plant-type">${plant.type}</div>
+                        <div class="plant-facts">${plant.facts}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function selectPlant(index) {
+            selectedPlant = index;
+            renderCatalog();
+            showPlantInfo(plants[index]);
+        }
+
+        function showPlantInfo(plant) {
+            const infoPanel = document.getElementById('infoPanel');
+            infoPanel.innerHTML = `
+                <div class="info-title">${plant.emoji} ${plant.name}</div>
+                <div class="info-content">
+                    <p style="margin-bottom: 15px;"><strong>Type:</strong> ${plant.type}</p>
+                    <p style="margin-bottom: 15px;">${plant.info}</p>
+                    <p style="margin-bottom: 10px;"><strong>Care Requirements:</strong></p>
+                    <p>💧 Water: ${plant.water} | ☀️ Sunlight: ${plant.sunlight} | 📈 Growth: ${plant.growthRate}</p>
+                </div>
+            `;
+        }
+
+        function renderGarden() {
+            const grid = document.getElementById('gardenGrid');
+            grid.innerHTML = garden.map((slot, index) => {
+                if (slot) {
+                    return `
+                        <div class="garden-slot planted" onclick="removeFromGarden(${index})" 
+                             title="Click to remove">
+                            <div class="growth-stage">${slot.stage}</div>
+                            <div class="slot-emoji">${slot.plant.emoji}</div>
+                            <div class="slot-info">${slot.plant.name}</div>
+                        </div>
+                    `;
+                } else {
+                    return `
+                        <div class="garden-slot" onclick="plantInGarden(${index})"
+                             title="Click to plant">
+                            <span style="font-size: 1.5rem; color: rgba(255,255,255,0.2);">+</span>
+                        </div>
+                    `;
+                }
+            }).join('');
+            
+            updateStats();
+        }
+
+        function plantInGarden(slotIndex) {
+            if (selectedPlant === null) {
+                showNotification('Please select a plant first!', 'warning');
+                return;
+            }
+
+            if (garden[slotIndex] !== null) {
+                showNotification('This slot is already occupied!', 'warning');
+                return;
+            }
+
+            garden[slotIndex] = {
+                plant: plants[selectedPlant],
+                growth: 0,
+                stage: 'Seed'
+            };
+
+            renderGarden();
+            showNotification(`Planted ${plants[selectedPlant].name}! 🌱`, 'success');
+        }
+
+        function removePlant(index) {
+            if (confirm(`Remove ${garden[index].plant.name}?`)) {
+                garden[index] = null;
+                renderGarden();
+                showNotification(`${garden[index]?.plant?.name || 'Plant'} removed`, 'info');
+            }
+        }
+
+        function updateStats() {
+            const planted = garden.filter(s => s !== null);
+            const uniqueSpecies = new Set(planted.map(s => s.plant.name)).size;
+            const avgGrowth = planted.length > 0 
+                ? Math.floor(planted.reduce((sum, s) => sum + s.growth, 0) / planted.length)
+                : 0;
+
+            document.getElementById('plantCount').textContent = planted.length;
+            document.getElementById('speciesCount').textContent = uniqueSpecies;
+            document.getElementById('avgGrowth').textContent = avgGrowth + '%';
+        }
+
+        function setWeather(weather) {
+            currentWeather = weather;
+            document.querySelectorAll('.weather-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            const weatherEffects = {
+                sunny: '☀️ Perfect growing conditions!',
+                rainy: '🌧️ Extra water boost for all plants!',
+                cloudy: '☁️ Slower growth but consistent.'
+            };
+            
+            showNotification(weatherEffects[weather], 'info');
+        }
+
+        function waterGarden() {
+            const planted = garden.filter(s => s !== null);
+            if (planted.length === 0) {
+                showNotification('No plants to water!', 'warning');
+                return;
+            }
+
+            garden.forEach(slot => {
+                if (slot) {
+                    slot.growth = Math.min(100, slot.growth + 15);
+                    updateGrowthStage(slot);
+                }
+            });
+
+            renderGarden();
+            showNotification('💧 All plants watered!', 'success');
+        }
+
+        function updateGrowthStage(slot) {
+            if (slot.growth < 25) {
+                slot.stage = 'Seed';
+            } else if (slot.growth < 50) {
+                slot.stage = 'Sprout';
+            } else if (slot.growth < 75) {
+                slot.stage = 'Growing';
+            } else if (slot.growth < 100) {
+                slot.stage = 'Mature';
+            } else {
+                slot.stage = 'Blooming';
+            }
+        }
+
+        function clearGarden() {
+            if (garden.filter(s => s !== null).length === 0) {
+                showNotification('Garden is already empty!', 'info');
+                return;
+            }
+
+            if (confirm('Clear entire garden?')) {
+                garden = Array(24).fill(null);
+                renderGarden();
+                showNotification('Garden cleared', 'info');
+            }
+        }
+
+        function showNotification(message, type) {
+            const notif = document.createElement('div');
+            notif.className = 'notification';
+            notif.textContent = message;
+            
+            const colors = {
+                success: 'rgba(76, 175, 80, 0.9)',
+                warning: 'rgba(255, 193, 7, 0.9)',
+                info: 'rgba(102, 126, 234, 0.9)'
+            };
+            
+            notif.style.background = colors[type] || colors.info;
+            document.body.appendChild(notif);
+            
+            setTimeout(() => {
+                notif.remove();
+            }, 3000);
+        }
+
+        // Auto-grow plants
+        function startGrowth() {
+            growthInterval = setInterval(() => {
+                let hasChanges = false;
+                
+                garden.forEach(slot => {
+                    if (slot && slot.growth < 100) {
+                        const growthRate = currentWeather === 'sunny' ? 2 : currentWeather === 'rainy' ? 3 : 1;
+                        slot.growth = Math.min(100, slot.growth + growthRate);
+                        updateGrowthStage(slot);
+                        hasChanges = true;
+                    }
+                });
+
+                if (hasChanges) {
+                    renderGarden();
+                }
+            }, 3000); // Grow every 3 seconds
+        }
+
+        // Initialize
+        window.addEventListener('DOMContentLoaded', function() {
+            renderCatalog();
+            renderGarden();
+            startGrowth();
+        });
+    </script>
+</body>
+</html>

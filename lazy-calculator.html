@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lazy Calculator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 100%);
+            color: #e0e0e0;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            padding: 40px 20px;
+            position: relative;
+        }
+
+        .home-btn {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(102, 126, 234, 0.1);
+            border: 2px solid #667eea;
+            color: #667eea;
+            padding: 12px 25px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .home-btn:hover {
+            background: #667eea;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        h1 {
+            font-size: 3.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #888;
+            font-size: 1.1rem;
+            letter-spacing: 1px;
+        }
+
+        .info-box {
+            background: rgba(102, 126, 234, 0.1);
+            border: 2px solid rgba(102, 126, 234, 0.3);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 30px 0;
+            text-align: center;
+        }
+
+        .info-text {
+            color: #b0b0b0;
+            font-size: 1rem;
+            line-height: 1.6;
+        }
+
+        .calculator-area {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 40px;
+            margin: 30px 0;
+            backdrop-filter: blur(10px);
+        }
+
+        .input-section {
+            margin-bottom: 30px;
+        }
+
+        .input-label {
+            display: block;
+            margin-bottom: 15px;
+            color: #667eea;
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .math-input {
+            width: 100%;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            color: #e0e0e0;
+            font-size: 1.3rem;
+            outline: none;
+            transition: all 0.3s ease;
+            font-family: 'Courier New', monospace;
+        }
+
+        .math-input:focus {
+            border-color: #667eea;
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .examples {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .example-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #888;
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .example-btn:hover {
+            background: rgba(102, 126, 234, 0.1);
+            border-color: rgba(102, 126, 234, 0.3);
+            color: #667eea;
+        }
+
+        .calculate-btn {
+            width: 100%;
+            padding: 20px;
+            background: #667eea;
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-size: 1.2rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .calculate-btn:hover {
+            background: #764ba2;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .calculate-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .riddle-section {
+            margin-top: 40px;
+            padding: 30px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(102, 126, 234, 0.3);
+            border-radius: 15px;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .riddle-title {
+            font-size: 1.5rem;
+            color: #667eea;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .riddle-text {
+            font-size: 1.2rem;
+            color: #e0e0e0;
+            line-height: 1.8;
+            margin-bottom: 25px;
+            font-style: italic;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+        }
+
+        .hint-section {
+            margin-top: 20px;
+        }
+
+        .hint-btn {
+            background: rgba(255, 193, 7, 0.1);
+            border: 2px solid rgba(255, 193, 7, 0.3);
+            color: #ffc107;
+            padding: 12px 25px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .hint-btn:hover {
+            background: rgba(255, 193, 7, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .hint-text {
+            margin-top: 15px;
+            padding: 15px;
+            background: rgba(255, 193, 7, 0.1);
+            border-radius: 10px;
+            color: #ffc107;
+            display: none;
+        }
+
+        .hint-text.show {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .answer-section {
+            margin-top: 25px;
+        }
+
+        .answer-input {
+            width: 100%;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            color: #e0e0e0;
+            font-size: 1.1rem;
+            outline: none;
+            margin-bottom: 15px;
+            font-family: 'Courier New', monospace;
+        }
+
+        .answer-input:focus {
+            border-color: #667eea;
+        }
+
+        .check-btn {
+            padding: 15px 30px;
+            background: rgba(76, 175, 80, 0.2);
+            border: 2px solid #4caf50;
+            color: #4caf50;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            margin-right: 10px;
+        }
+
+        .check-btn:hover {
+            background: #4caf50;
+            color: white;
+        }
+
+        .reveal-btn {
+            padding: 15px 30px;
+            background: rgba(255, 107, 107, 0.2);
+            border: 2px solid #ff6b6b;
+            color: #ff6b6b;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .reveal-btn:hover {
+            background: #ff6b6b;
+            color: white;
+        }
+
+        .result-message {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 10px;
+            font-weight: 600;
+            text-align: center;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .result-message.correct {
+            background: rgba(76, 175, 80, 0.2);
+            color: #4caf50;
+            border: 2px solid #4caf50;
+        }
+
+        .result-message.incorrect {
+            background: rgba(255, 107, 107, 0.2);
+            color: #ff6b6b;
+            border: 2px solid #ff6b6b;
+        }
+
+        .result-message.revealed {
+            background: rgba(102, 126, 234, 0.2);
+            color: #667eea;
+            border: 2px solid #667eea;
+        }
+
+        .difficulty-selector {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+
+        .difficulty-btn {
+            padding: 12px 25px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            color: #888;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .difficulty-btn:hover {
+            background: rgba(102, 126, 234, 0.1);
+            border-color: rgba(102, 126, 234, 0.3);
+        }
+
+        .difficulty-btn.active {
+            background: rgba(102, 126, 234, 0.2);
+            border-color: #667eea;
+            color: #667eea;
+        }
+
+        @media (max-width: 768px) {
+            h1 { font-size: 2.5rem; }
+            .calculator-area { padding: 25px; }
+            .difficulty-selector { flex-direction: column; }
+            .home-btn {
+                position: static;
+                margin-bottom: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <a href="#" class="home-btn" onclick="window.location.href='index.html'; return false;">← Home</a>
+            <h1>🧮 Lazy Calculator</h1>
+            <p class="subtitle">Where math meets mystery!</p>
+        </header>
+
+        <div class="info-box">
+            <p class="info-text">
+                Welcome to the Lazy Calculator! I'm too lazy to just give you the answer... 
+                So instead, I'll give you ANOTHER equation to solve that has the same answer! 
+                Think you can handle it? 😏
+            </p>
+        </div>
+
+        <div class="calculator-area">
+            <div class="difficulty-selector">
+                <button class="difficulty-btn active" onclick="setDifficulty('easy')">😊 Easy Equations</button>
+                <button class="difficulty-btn" onclick="setDifficulty('medium')">🤔 Medium Equations</button>
+                <button class="difficulty-btn" onclick="setDifficulty('hard')">🧠 Hard Equations</button>
+            </div>
+
+            <div class="input-section">
+                <label class="input-label">Enter your math problem:</label>
+                <input type="text" class="math-input" id="mathInput" 
+                       placeholder="e.g., 25 + 37 or sqrt(144) or 5^3">
+                <div class="examples">
+                    <button class="example-btn" onclick="setExample('15 + 28')">15 + 28</button>
+                    <button class="example-btn" onclick="setExample('144 / 12')">144 / 12</button>
+                    <button class="example-btn" onclick="setExample('7 * 8')">7 * 8</button>
+                    <button class="example-btn" onclick="setExample('sqrt(169)')">√169</button>
+                    <button class="example-btn" onclick="setExample('2^10')">2¹⁰</button>
+                    <button class="example-btn" onclick="setExample('100 - 37')">100 - 37</button>
+                </div>
+            </div>
+
+            <button class="calculate-btn" onclick="calculateAndRiddle()">
+                🎲 Give Me Another Equation!
+            </button>
+
+            <div id="riddleContainer"></div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.11.0/math.min.js"></script>
+    <script>
+        let currentAnswer = null;
+        let currentDifficulty = 'easy';
+        let hintsUsed = 0;
+
+        function setDifficulty(level) {
+            currentDifficulty = level;
+            document.querySelectorAll('.difficulty-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+        }
+
+        function setExample(example) {
+            document.getElementById('mathInput').value = example;
+        }
+
+        function calculateAndRiddle() {
+            const input = document.getElementById('mathInput').value.trim();
+            if (!input) {
+                alert('Please enter a math problem!');
+                return;
+            }
+
+            try {
+                // Parse and evaluate the expression
+                let expression = input
+                    .replace(/sqrt/g, 'sqrt')
+                    .replace(/\^/g, '^')
+                    .replace(/×/g, '*')
+                    .replace(/÷/g, '/');
+
+                currentAnswer = math.evaluate(expression);
+                
+                // Round to reasonable decimal places
+                if (typeof currentAnswer === 'number') {
+                    currentAnswer = Math.round(currentAnswer * 1000000) / 1000000;
+                }
+
+                hintsUsed = 0;
+                displayRiddle(currentAnswer, input);
+            } catch (error) {
+                alert('Invalid math expression! Please check your input.');
+            }
+        }
+
+        function displayRiddle(answer, problem) {
+            const riddle = generateRiddle(answer, currentDifficulty);
+            
+            const riddleHTML = `
+                <div class="riddle-section">
+                    <div class="riddle-title">🎲 Solve This Equation Instead!</div>
+                    <div class="riddle-text">${riddle.text} = ?</div>
+                    
+                    <div class="hint-section">
+                        <button class="hint-btn" onclick="showHint()">💡 Get a Hint</button>
+                        <div class="hint-text" id="hintText">${riddle.hint}</div>
+                    </div>
+
+                    <div class="answer-section">
+                        <input type="text" class="answer-input" id="answerInput" 
+                               placeholder="What's your answer?">
+                        <button class="check-btn" onclick="checkAnswer()">✓ Check Answer</button>
+                        <button class="reveal-btn" onclick="revealAnswer()">👁️ Reveal Answer</button>
+                    </div>
+
+                    <div id="resultMessage"></div>
+                </div>
+            `;
+
+            document.getElementById('riddleContainer').innerHTML = riddleHTML;
+        }
+
+        function generateRiddle(answer, difficulty) {
+            let equation = '';
+            let hint = '';
+            
+            // Generate random numbers for the riddle equation
+            const rand = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+            
+            if (difficulty === 'easy') {
+                // Simple addition or subtraction
+                const operations = [
+                    () => {
+                        const a = rand(1, Math.floor(answer / 2));
+                        const b = answer - a;
+                        equation = `${a} + ${b}`;
+                        hint = `Try adding ${a} and ${b}`;
+                    },
+                    () => {
+                        const a = answer + rand(1, 20);
+                        const b = a - answer;
+                        equation = `${a} - ${b}`;
+                        hint = `Try subtracting ${b} from ${a}`;
+                    },
+                    () => {
+                        if (answer > 1) {
+                            const a = rand(2, 5);
+                            const b = Math.floor(answer / a);
+                            const remainder = answer - (a * b);
+                            if (remainder === 0) {
+                                equation = `${a} × ${b}`;
+                                hint = `Try multiplying ${a} and ${b}`;
+                            } else {
+                                const c = rand(1, Math.floor(answer / 2));
+                                const d = answer - c;
+                                equation = `${c} + ${d}`;
+                                hint = `Try adding ${c} and ${d}`;
+                            }
+                        } else {
+                            const a = rand(1, 10);
+                            const b = answer - a;
+                            equation = `${a} + ${b}`;
+                            hint = `Try adding ${a} and ${b}`;
+                        }
+                    }
+                ];
+                operations[rand(0, operations.length - 1)]();
+                
+            } else if (difficulty === 'medium') {
+                // More complex operations
+                const operations = [
+                    () => {
+                        const a = rand(2, 10);
+                        const b = rand(2, 10);
+                        const c = answer - (a * b);
+                        if (c >= 0) {
+                            equation = `${a} × ${b} + ${c}`;
+                            hint = `First multiply ${a} × ${b}, then add ${c}`;
+                        } else {
+                            equation = `${a} × ${b} - ${Math.abs(c)}`;
+                            hint = `First multiply ${a} × ${b}, then subtract ${Math.abs(c)}`;
+                        }
+                    },
+                    () => {
+                        if (answer > 10) {
+                            const a = rand(Math.floor(answer / 2), answer - 1);
+                            const b = rand(1, 10);
+                            const c = answer - a + b;
+                            equation = `${a} + ${c} - ${b}`;
+                            hint = `Start with ${a}, add ${c}, then subtract ${b}`;
+                        } else {
+                            const a = rand(5, 15);
+                            const b = a - answer;
+                            equation = `${a} - ${b}`;
+                            hint = `Subtract ${b} from ${a}`;
+                        }
+                    },
+                    () => {
+                        if (Math.sqrt(answer) % 1 === 0) {
+                            const sq = Math.sqrt(answer);
+                            equation = `${sq}²`;
+                            hint = `What is ${sq} squared?`;
+                        } else {
+                            const a = rand(2, 8);
+                            const b = Math.floor(answer / a);
+                            const c = answer - (a * b);
+                            equation = `${a} × ${b} + ${c}`;
+                            hint = `Multiply ${a} × ${b}, then add ${c}`;
+                        }
+                    }
+                ];
+                operations[rand(0, operations.length - 1)]();
+                
+            } else { // hard
+                // Very complex operations
+                const operations = [
+                    () => {
+                        const a = rand(2, 6);
+                        const b = rand(2, 6);
+                        const c = rand(2, 6);
+                        const result = (a * b) + c;
+                        const diff = answer - result;
+                        if (diff >= 0) {
+                            equation = `(${a} × ${b} + ${c}) + ${diff}`;
+                            hint = `Calculate (${a} × ${b} + ${c}) first, then add ${diff}`;
+                        } else {
+                            equation = `(${a} × ${b} + ${c}) - ${Math.abs(diff)}`;
+                            hint = `Calculate (${a} × ${b} + ${c}) first, then subtract ${Math.abs(diff)}`;
+                        }
+                    },
+                    () => {
+                        const a = rand(2, 5);
+                        const b = rand(2, 4);
+                        const power = Math.pow(a, b);
+                        const diff = answer - power;
+                        if (Math.abs(diff) < 50) {
+                            if (diff >= 0) {
+                                equation = `${a}^${b} + ${diff}`;
+                                hint = `Calculate ${a} to the power of ${b}, then add ${diff}`;
+                            } else {
+                                equation = `${a}^${b} - ${Math.abs(diff)}`;
+                                hint = `Calculate ${a} to the power of ${b}, then subtract ${Math.abs(diff)}`;
+                            }
+                        } else {
+                            const c = rand(10, 30);
+                            const d = rand(5, 15);
+                            const e = answer - c + d;
+                            equation = `${c} + ${e} - ${d}`;
+                            hint = `Start with ${c}, add ${e}, then subtract ${d}`;
+                        }
+                    },
+                    () => {
+                        const a = rand(5, 20);
+                        const b = rand(2, 5);
+                        const c = rand(3, 8);
+                        const result = Math.floor(a / b) * c;
+                        const diff = answer - result;
+                        if (Math.abs(diff) < 30) {
+                            if (diff >= 0) {
+                                equation = `(${a} ÷ ${b}) × ${c} + ${diff}`;
+                                hint = `Divide ${a} by ${b}, multiply by ${c}, then add ${diff}`;
+                            } else {
+                                equation = `(${a} ÷ ${b}) × ${c} - ${Math.abs(diff)}`;
+                                hint = `Divide ${a} by ${b}, multiply by ${c}, then subtract ${Math.abs(diff)}`;
+                            }
+                        } else {
+                            const d = rand(2, 10);
+                            const e = rand(2, 10);
+                            const f = answer - (d * e);
+                            equation = `${d} × ${e} + ${f}`;
+                            hint = `Multiply ${d} × ${e}, then add ${f}`;
+                        }
+                    }
+                ];
+                operations[rand(0, operations.length - 1)]();
+            }
+
+            return {
+                text: equation,
+                hint: hint
+            };
+        }
+
+        function showHint() {
+            const hintText = document.getElementById('hintText');
+            hintText.classList.add('show');
+            hintsUsed++;
+        }
+
+        function checkAnswer() {
+            const userAnswer = document.getElementById('answerInput').value.trim();
+            const resultDiv = document.getElementById('resultMessage');
+
+            if (!userAnswer) {
+                alert('Please enter an answer!');
+                return;
+            }
+
+            try {
+                const userValue = math.evaluate(userAnswer);
+                const isCorrect = Math.abs(userValue - currentAnswer) < 0.0001;
+
+                if (isCorrect) {
+                    resultDiv.className = 'result-message correct';
+                    resultDiv.innerHTML = `
+                        🎉 Correct! The answer is indeed ${currentAnswer}!
+                        ${hintsUsed > 0 ? `<br>(You used ${hintsUsed} hint${hintsUsed > 1 ? 's' : ''})` : '<br>Perfect! You solved it without hints!'}
+                    `;
+                } else {
+                    resultDiv.className = 'result-message incorrect';
+                    resultDiv.innerHTML = `
+                        ❌ Not quite! ${userValue} is not the answer. Try again!
+                    `;
+                }
+            } catch (error) {
+                resultDiv.className = 'result-message incorrect';
+                resultDiv.innerHTML = '❌ Invalid answer format. Please enter a number.';
+            }
+        }
+
+        function revealAnswer() {
+            const resultDiv = document.getElementById('resultMessage');
+            resultDiv.className = 'result-message revealed';
+            resultDiv.innerHTML = `
+                🔍 The answer is: <strong>${currentAnswer}</strong>
+                <br>Better luck with the next riddle!
+            `;
+        }
+
+        // Allow Enter key to submit
+        document.getElementById('mathInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                calculateAndRiddle();
+            }
+        });
+    </script>
+</body>
+</html>

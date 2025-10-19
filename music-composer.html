@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daily Life Music Composer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 100%);
+            color: #e0e0e0;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            padding: 40px 20px;
+            position: relative;
+        }
+
+        .home-btn {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(102, 126, 234, 0.1);
+            border: 2px solid #667eea;
+            color: #667eea;
+            padding: 12px 25px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .home-btn:hover {
+            background: #667eea;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        h1 {
+            font-size: 3.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #888;
+            font-size: 1.1rem;
+            letter-spacing: 1px;
+        }
+
+        .workspace {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 30px;
+            margin-top: 30px;
+        }
+
+        .panel {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 25px;
+            backdrop-filter: blur(10px);
+        }
+
+        .panel-title {
+            font-size: 1.3rem;
+            margin-bottom: 20px;
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        .sounds-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+        }
+
+        .sound-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #e0e0e0;
+            font-size: 1rem;
+        }
+
+        .sound-btn:hover {
+            background: rgba(102, 126, 234, 0.1);
+            border-color: rgba(102, 126, 234, 0.3);
+            transform: translateX(5px);
+        }
+
+        .sound-btn:active {
+            transform: scale(0.95);
+        }
+
+        .sound-icon {
+            font-size: 1.5rem;
+        }
+
+        .sequencer {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .track {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 10px;
+        }
+
+        .track-label {
+            width: 100px;
+            font-size: 0.9rem;
+            color: #888;
+            font-weight: 600;
+        }
+
+        .track-grid {
+            display: grid;
+            grid-template-columns: repeat(16, 1fr);
+            gap: 5px;
+            flex: 1;
+        }
+
+        .beat-cell {
+            aspect-ratio: 1;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .beat-cell:hover {
+            background: rgba(102, 126, 234, 0.2);
+            border-color: rgba(102, 126, 234, 0.5);
+        }
+
+        .beat-cell.active {
+            background: #667eea;
+            border-color: #667eea;
+            box-shadow: 0 0 15px rgba(102, 126, 234, 0.5);
+        }
+
+        .beat-cell.playing {
+            animation: pulse 0.2s ease;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+
+        .beat-cell.current {
+            border-color: #ffc107;
+            border-width: 3px;
+        }
+
+        .controls-panel {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+
+        .control-btn {
+            padding: 15px 30px;
+            background: rgba(102, 126, 234, 0.1);
+            border: 2px solid #667eea;
+            color: #667eea;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .control-btn:hover {
+            background: #667eea;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .control-btn.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .control-btn.danger {
+            border-color: #ff6b6b;
+            color: #ff6b6b;
+            background: rgba(255, 107, 107, 0.1);
+        }
+
+        .control-btn.danger:hover {
+            background: #ff6b6b;
+            color: white;
+        }
+
+        .tempo-control {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-top: 20px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 12px;
+        }
+
+        .tempo-label {
+            font-weight: 600;
+            color: #888;
+            min-width: 80px;
+        }
+
+        .tempo-slider {
+            flex: 1;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            outline: none;
+            cursor: pointer;
+        }
+
+        .tempo-value {
+            font-weight: 600;
+            color: #667eea;
+            font-size: 1.2rem;
+            min-width: 80px;
+            text-align: center;
+        }
+
+        .presets-section {
+            margin-top: 20px;
+        }
+
+        .presets-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .preset-btn {
+            padding: 12px 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            color: #e0e0e0;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: left;
+        }
+
+        .preset-btn:hover {
+            background: rgba(102, 126, 234, 0.1);
+            border-color: rgba(102, 126, 234, 0.3);
+        }
+
+        @media (max-width: 1024px) {
+            .workspace {
+                grid-template-columns: 1fr;
+            }
+            
+            .track-grid {
+                grid-template-columns: repeat(8, 1fr);
+            }
+            
+            .home-btn {
+                position: static;
+                margin-bottom: 20px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            h1 { font-size: 2.5rem; }
+            .track-label { width: 60px; font-size: 0.8rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <a href="#" class="home-btn" onclick="window.location.href='index.html'; return false;">← Home</a>
+            <h1>🎵 Music Composer</h1>
+            <p class="subtitle">Create music with everyday sounds</p>
+        </header>
+
+        <div class="workspace">
+            <!-- Sound Library -->
+            <div class="panel">
+                <h3 class="panel-title">🔊 Sound Library</h3>
+                <div class="sounds-grid" id="soundsList"></div>
+
+                <div class="presets-section">
+                    <h3 class="panel-title">📋 Presets</h3>
+                    <div class="presets-grid">
+                        <button class="preset-btn" onclick="loadPreset('morning')">
+                            🌅 Morning Routine
+                        </button>
+                        <button class="preset-btn" onclick="loadPreset('kitchen')">
+                            🍳 Kitchen Jam
+                        </button>
+                        <button class="preset-btn" onclick="loadPreset('office')">
+                            💼 Office Beat
+                        </button>
+                        <button class="preset-btn" onclick="loadPreset('nature')">
+                            🌿 Nature Sounds
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sequencer -->
+            <div class="panel">
+                <h3 class="panel-title">🎹 Sequencer</h3>
+                <div class="sequencer" id="sequencer"></div>
+
+                <div class="tempo-control">
+                    <div class="tempo-label">Tempo:</div>
+                    <input type="range" class="tempo-slider" id="tempoSlider" 
+                           min="60" max="180" value="120" oninput="updateTempo()">
+                    <div class="tempo-value" id="tempoValue">120 BPM</div>
+                </div>
+
+                <div class="controls-panel">
+                    <button class="control-btn" id="playBtn" onclick="togglePlay()">
+                        ▶️ Play
+                    </button>
+                    <button class="control-btn" onclick="stopSequence()">
+                        ⏹️ Stop
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Define everyday sounds
+        const sounds = [
+            { name: 'Clap', icon: '👏', freq: 800, type: 'noise', duration: 0.1 },
+            { name: 'Snap', icon: '🫰', freq: 1200, type: 'noise', duration: 0.05 },
+            { name: 'Tap', icon: '👆', freq: 400, type: 'sine', duration: 0.08 },
+            { name: 'Bell', icon: '🔔', freq: 880, type: 'sine', duration: 0.5 },
+            { name: 'Whistle', icon: '😗', freq: 1500, type: 'sine', duration: 0.3 },
+            { name: 'Pop', icon: '💥', freq: 150, type: 'triangle', duration: 0.15 },
+            { name: 'Click', icon: '🖱️', freq: 2000, type: 'square', duration: 0.03 },
+            { name: 'Thud', icon: '🥁', freq: 80, type: 'triangle', duration: 0.2 },
+        ];
+
+        let audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        let isPlaying = false;
+        let currentBeat = 0;
+        let tempo = 120;
+        let intervalId = null;
+        const beatsPerBar = 16;
+        
+        // Initialize grid state
+        let grid = {};
+        sounds.forEach(sound => {
+            grid[sound.name] = Array(beatsPerBar).fill(false);
+        });
+
+        // Render sounds list
+        function renderSounds() {
+            const list = document.getElementById('soundsList');
+            list.innerHTML = sounds.map(sound => `
+                <button class="sound-btn" onclick="playSound('${sound.name}')">
+                    <span class="sound-icon">${sound.icon}</span>
+                    <span>${sound.name}</span>
+                </button>
+            `).join('');
+        }
+
+        // Render sequencer
+        function renderSequencer() {
+            const sequencer = document.getElementById('sequencer');
+            sequencer.innerHTML = sounds.map(sound => `
+                <div class="track">
+                    <div class="track-label">${sound.icon} ${sound.name}</div>
+                    <div class="track-grid">
+                        ${Array(beatsPerBar).fill(0).map((_, i) => `
+                            <div class="beat-cell ${grid[sound.name][i] ? 'active' : ''}" 
+                                 data-sound="${sound.name}" 
+                                 data-beat="${i}"
+                                 onclick="toggleBeat('${sound.name}', ${i})">
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Toggle beat
+        function toggleBeat(soundName, beat) {
+            grid[soundName][beat] = !grid[soundName][beat];
+            renderSequencer();
+        }
+
+        // Play individual sound
+        function playSound(soundName) {
+            const sound = sounds.find(s => s.name === soundName);
+            if (!sound) return;
+
+            const now = audioContext.currentTime;
+            
+            if (sound.type === 'noise') {
+                // Create noise burst for percussive sounds
+                const bufferSize = audioContext.sampleRate * sound.duration;
+                const buffer = audioContext.createBuffer(1, bufferSize, audioContext.sampleRate);
+                const data = buffer.getChannelData(0);
+                
+                for (let i = 0; i < bufferSize; i++) {
+                    data[i] = Math.random() * 2 - 1;
+                }
+                
+                const noise = audioContext.createBufferSource();
+                noise.buffer = buffer;
+                
+                const filter = audioContext.createBiquadFilter();
+                filter.type = 'bandpass';
+                filter.frequency.value = sound.freq;
+                filter.Q.value = 10;
+                
+                const gainNode = audioContext.createGain();
+                gainNode.gain.setValueAtTime(0.3, now);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, now + sound.duration);
+                
+                noise.connect(filter);
+                filter.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                noise.start(now);
+                noise.stop(now + sound.duration);
+            } else {
+                // Create tone for melodic sounds
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                oscillator.type = sound.type;
+                oscillator.frequency.value = sound.freq;
+                
+                gainNode.gain.setValueAtTime(0.3, now);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, now + sound.duration);
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                oscillator.start(now);
+                oscillator.stop(now + sound.duration);
+            }
+        }
+
+        // Play sequence
+        function playSequence() {
+            // Play sounds for current beat
+            sounds.forEach(sound => {
+                if (grid[sound.name][currentBeat]) {
+                    playSound(sound.name);
+                    // Visual feedback
+                    const cell = document.querySelector(
+                        `[data-sound="${sound.name}"][data-beat="${currentBeat}"]`
+                    );
+                    if (cell) {
+                        cell.classList.add('playing');
+                        setTimeout(() => cell.classList.remove('playing'), 200);
+                    }
+                }
+            });
+
+            // Highlight current beat
+            document.querySelectorAll('.beat-cell').forEach(cell => {
+                cell.classList.remove('current');
+            });
+            document.querySelectorAll(`[data-beat="${currentBeat}"]`).forEach(cell => {
+                cell.classList.add('current');
+            });
+
+            // Move to next beat
+            currentBeat = (currentBeat + 1) % beatsPerBar;
+        }
+
+        // Toggle play/pause
+        function togglePlay() {
+            const btn = document.getElementById('playBtn');
+            
+            if (isPlaying) {
+                // Pause
+                clearInterval(intervalId);
+                isPlaying = false;
+                btn.innerHTML = '▶️ Play';
+                btn.classList.remove('active');
+            } else {
+                // Play
+                isPlaying = true;
+                btn.innerHTML = '⏸️ Pause';
+                btn.classList.add('active');
+                
+                const beatDuration = 60000 / tempo / 4; // Quarter note duration
+                intervalId = setInterval(playSequence, beatDuration);
+            }
+        }
+
+        // Stop sequence
+        function stopSequence() {
+            clearInterval(intervalId);
+            isPlaying = false;
+            currentBeat = 0;
+            document.getElementById('playBtn').innerHTML = '▶️ Play';
+            document.getElementById('playBtn').classList.remove('active');
+            document.querySelectorAll('.beat-cell').forEach(cell => {
+                cell.classList.remove('current');
+            });
+        }
+
+        // Update tempo
+        function updateTempo() {
+            tempo = document.getElementById('tempoSlider').value;
+            document.getElementById('tempoValue').textContent = tempo + ' BPM';
+            
+            if (isPlaying) {
+                clearInterval(intervalId);
+                const beatDuration = 60000 / tempo / 4;
+                intervalId = setInterval(playSequence, beatDuration);
+            }
+        }
+
+        // Clear all
+        function clearAll() {
+            if (confirm('Clear all beats?')) {
+                sounds.forEach(sound => {
+                    grid[sound.name] = Array(beatsPerBar).fill(false);
+                });
+                renderSequencer();
+            }
+        }
+
+        // Load preset patterns
+        function loadPreset(preset) {
+            stopSequence();
+            
+            // Clear grid first
+            sounds.forEach(sound => {
+                grid[sound.name] = Array(beatsPerBar).fill(false);
+            });
+
+            if (preset === 'morning') {
+                grid['Bell'] = [true, false, false, false, true, false, false, false, true, false, false, false, true, false, false, false];
+                grid['Clap'] = [false, false, false, false, true, false, false, false, false, false, false, false, true, false, false, false];
+                grid['Tap'] = [true, false, true, false, true, false, true, false, true, false, true, false, true, false, true, false];
+            } else if (preset === 'kitchen') {
+                grid['Tap'] = [true, false, false, false, true, false, false, false, true, false, false, false, true, false, false, false];
+                grid['Click'] = [false, false, true, false, false, false, true, false, false, false, true, false, false, false, true, false];
+                grid['Pop'] = [false, false, false, false, true, false, false, false, false, false, false, false, true, false, false, false];
+                grid['Snap'] = [false, true, false, true, false, true, false, true, false, true, false, true, false, true, false, true];
+            } else if (preset === 'office') {
+                grid['Click'] = [true, false, true, false, true, false, true, false, true, false, true, false, true, false, true, false];
+                grid['Tap'] = [false, false, false, false, true, false, false, false, false, false, false, false, true, false, false, false];
+                grid['Snap'] = [false, false, true, false, false, false, true, false, false, false, true, false, false, false, true, false];
+            } else if (preset === 'nature') {
+                grid['Whistle'] = [true, false, false, false, false, false, false, false, true, false, false, false, false, false, false, false];
+                grid['Bell'] = [false, false, true, false, false, false, true, false, false, false, true, false, false, false, true, false];
+                grid['Pop'] = [false, true, false, false, false, true, false, false, false, true, false, false, false, true, false, false];
+            }
+
+            renderSequencer();
+        }
+
+        // Initialize
+        renderSounds();
+        renderSequencer();
+    </script>
+</body>
+</html>

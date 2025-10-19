@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crazy Chemist</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 100%);
+            color: #e0e0e0;
+            min-height: 100vh;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            padding: 40px 20px;
+            position: relative;
+        }
+
+        .home-btn {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(102, 126, 234, 0.1);
+            border: 2px solid #667eea;
+            color: #667eea;
+            padding: 12px 25px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .home-btn:hover {
+            background: #667eea;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        h1 {
+            font-size: 3.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #888;
+            font-size: 1.1rem;
+            letter-spacing: 1px;
+        }
+
+        .lab-container {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 30px;
+            margin-top: 30px;
+        }
+
+        .panel {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 25px;
+            backdrop-filter: blur(10px);
+        }
+
+        .panel-title {
+            font-size: 1.3rem;
+            margin-bottom: 20px;
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        .chemical-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .chemical-item {
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 12px;
+            cursor: grab;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .chemical-item:hover {
+            background: rgba(102, 126, 234, 0.1);
+            border-color: rgba(102, 126, 234, 0.3);
+            transform: translateX(5px);
+        }
+
+        .chemical-item:active {
+            cursor: grabbing;
+        }
+
+        .chemical-color {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .chemical-info {
+            flex: 1;
+        }
+
+        .chemical-name {
+            font-weight: 600;
+            margin-bottom: 3px;
+        }
+
+        .chemical-formula {
+            font-size: 0.85rem;
+            color: #888;
+            font-family: 'Courier New', monospace;
+        }
+
+        .lab-bench {
+            min-height: 600px;
+            position: relative;
+        }
+
+        .beaker-container {
+            position: relative;
+            width: 300px;
+            height: 400px;
+            margin: 50px auto;
+        }
+
+        .beaker {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 200px;
+            height: 300px;
+            background: linear-gradient(180deg, transparent 0%, rgba(255, 255, 255, 0.1) 100%);
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-top: none;
+            border-radius: 0 0 20px 20px;
+            overflow: hidden;
+        }
+
+        .beaker::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -3px;
+            right: -3px;
+            height: 30px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-bottom: none;
+            border-radius: 10px 10px 0 0;
+        }
+
+        .liquid {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 0%;
+            background: #3498db;
+            transition: all 0.5s ease;
+            border-radius: 0 0 17px 17px;
+        }
+
+        .bubbles {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        .bubble {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            animation: rise 3s infinite;
+        }
+
+        @keyframes rise {
+            0% {
+                bottom: 0;
+                opacity: 1;
+            }
+            100% {
+                bottom: 100%;
+                opacity: 0;
+            }
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+
+        .control-btn {
+            padding: 15px 30px;
+            background: rgba(102, 126, 234, 0.1);
+            border: 2px solid #667eea;
+            color: #667eea;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .control-btn:hover {
+            background: #667eea;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .control-btn.danger {
+            border-color: #ff6b6b;
+            color: #ff6b6b;
+            background: rgba(255, 107, 107, 0.1);
+        }
+
+        .control-btn.danger:hover {
+            background: #ff6b6b;
+            color: white;
+        }
+
+        .control-btn.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .temperature-control {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .temp-label {
+            color: #b0b0b0;
+            margin-bottom: 10px;
+            font-size: 1rem;
+        }
+
+        .temp-slider {
+            width: 100%;
+            margin: 15px 0;
+        }
+
+        .temp-display {
+            font-size: 2rem;
+            font-weight: 600;
+            color: #667eea;
+        }
+
+        .reaction-log {
+            margin-top: 30px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 20px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .log-title {
+            font-size: 1.1rem;
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+
+        .log-entry {
+            padding: 10px;
+            margin-bottom: 8px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 8px;
+            font-size: 0.9rem;
+            border-left: 3px solid #667eea;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .log-entry.warning {
+            border-left-color: #ffc107;
+            color: #ffc107;
+        }
+
+        .log-entry.danger {
+            border-left-color: #ff6b6b;
+            color: #ff6b6b;
+        }
+
+        .log-entry.success {
+            border-left-color: #4caf50;
+            color: #4caf50;
+        }
+
+        .mixture-info {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .mixture-title {
+            font-size: 1.1rem;
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+
+        .mixture-item {
+            padding: 8px 0;
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .burner {
+            position: absolute;
+            bottom: -50px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 150px;
+            height: 60px;
+            display: none;
+        }
+
+        .burner.active {
+            display: block;
+        }
+
+        .flame {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 100px;
+            background: linear-gradient(180deg, 
+                rgba(255, 69, 0, 0.8) 0%, 
+                rgba(255, 140, 0, 0.6) 50%, 
+                rgba(255, 215, 0, 0.3) 100%);
+            border-radius: 50% 50% 0 0;
+            filter: blur(8px);
+            animation: flicker 0.3s infinite alternate;
+        }
+
+        @keyframes flicker {
+            0% { transform: translateX(-50%) scale(1); }
+            100% { transform: translateX(-50%) scale(1.05); }
+        }
+
+        @media (max-width: 1024px) {
+            .lab-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .home-btn {
+                position: static;
+                margin-bottom: 20px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            h1 { font-size: 2.5rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <a href="#" class="home-btn" onclick="window.location.href='index.html'; return false;">← Home</a>
+            <h1>⚗️ Crazy Chemist</h1>
+            <p class="subtitle">Your virtual chemistry laboratory</p>
+        </header>
+
+        <div class="lab-container">
+            <!-- Chemical Shelf -->
+            <div class="panel">
+                <h3 class="panel-title">🧪 Chemical Shelf</h3>
+                <div class="chemical-list" id="chemicalList"></div>
+
+                <div class="mixture-info">
+                    <div class="mixture-title">Current Mixture</div>
+                    <div id="mixtureContent">
+                        <div style="color: #888; text-align: center;">Empty</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Lab Bench -->
+            <div class="panel">
+                <h3 class="panel-title">🔬 Laboratory</h3>
+                
+                <div class="lab-bench">
+                    <div class="beaker-container">
+                        <div class="beaker">
+                            <div class="liquid" id="liquid"></div>
+                            <div class="bubbles" id="bubbles"></div>
+                        </div>
+                        <div class="burner" id="burner">
+                            <div class="flame"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="controls">
+                    <button class="control-btn" id="heatBtn" onclick="toggleHeat()">
+                        🔥 Heat
+                    </button>
+                    <button class="control-btn" id="stirBtn" onclick="toggleStir()">
+                        🥄 Stir
+                    </button>
+                </div>
+
+                <div class="temperature-control">
+                    <div class="temp-label">Temperature</div>
+                    <input type="range" class="temp-slider" id="tempSlider" 
+                           min="20" max="200" value="20" oninput="updateTemperature()">
+                    <div class="temp-display" id="tempDisplay">20°C</div>
+                </div>
+
+                <div class="reaction-log">
+                    <div class="log-title">📋 Reaction Log</div>
+                    <div id="logContent">
+                        <div style="color: #888; text-align: center;">No reactions yet</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const chemicals = [
+            { name: 'Water', formula: 'H₂O', color: '#3498db', ph: 7 },
+            { name: 'Hydrochloric Acid', formula: 'HCl', color: '#e74c3c', ph: 1 },
+            { name: 'Sodium Hydroxide', formula: 'NaOH', color: '#9b59b6', ph: 14 },
+            { name: 'Copper Sulfate', formula: 'CuSO₄', color: '#3498db', ph: 4 },
+            { name: 'Sodium Chloride', formula: 'NaCl', color: '#ecf0f1', ph: 7 },
+            { name: 'Potassium Permanganate', formula: 'KMnO₄', color: '#8e44ad', ph: 7 },
+            { name: 'Phenolphthalein', formula: 'C₂₀H₁₄O₄', color: '#ffc0cb', ph: 8 },
+            { name: 'Iron(III) Chloride', formula: 'FeCl₃', color: '#d68910', ph: 2 },
+            { name: 'Ammonia', formula: 'NH₃', color: '#85c1e9', ph: 11 },
+            { name: 'Sulfuric Acid', formula: 'H₂SO₄', color: '#ff6b6b', ph: 1 }
+        ];
+
+        let mixture = [];
+        let temperature = 20;
+        let isHeating = false;
+        let isStirring = false;
+        let liquidLevel = 0;
+
+        function renderChemicals() {
+            const list = document.getElementById('chemicalList');
+            list.innerHTML = chemicals.map((chem, index) => `
+                <div class="chemical-item" onclick="addChemical(${index})">
+                    <div class="chemical-color" style="background: ${chem.color}"></div>
+                    <div class="chemical-info">
+                        <div class="chemical-name">${chem.name}</div>
+                        <div class="chemical-formula">${chem.formula}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function addChemical(index) {
+            const chem = chemicals[index];
+            mixture.push(chem);
+            liquidLevel = Math.min(liquidLevel + 15, 100);
+            
+            // Check if beaker is overfilled
+            if (liquidLevel >= 100) {
+                addLog('💥 OVERFLOW! Beaker is too full - cleaning up!', 'danger');
+                setTimeout(() => {
+                    autoClearBeaker();
+                }, 1000);
+                return;
+            }
+            
+            updateLiquid();
+            updateMixture();
+            addLog(`Added ${chem.name} (${chem.formula})`, 'normal');
+            checkReaction();
+        }
+
+        function updateLiquid() {
+            const liquid = document.getElementById('liquid');
+            
+            if (mixture.length === 0) {
+                liquid.style.height = '0%';
+                liquid.style.background = '#3498db';
+                return;
+            }
+
+            // Mix colors
+            let r = 0, g = 0, b = 0;
+            mixture.forEach(chem => {
+                const color = hexToRgb(chem.color);
+                r += color.r;
+                g += color.g;
+                b += color.b;
+            });
+            
+            r = Math.floor(r / mixture.length);
+            g = Math.floor(g / mixture.length);
+            b = Math.floor(b / mixture.length);
+
+            liquid.style.height = liquidLevel + '%';
+            liquid.style.background = `rgb(${r}, ${g}, ${b})`;
+
+            if (isStirring) {
+                createBubbles(5);
+            }
+        }
+
+        function hexToRgb(hex) {
+            const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+            return result ? {
+                r: parseInt(result[1], 16),
+                g: parseInt(result[2], 16),
+                b: parseInt(result[3], 16)
+            } : { r: 52, g: 152, b: 219 };
+        }
+
+        function updateMixture() {
+            const content = document.getElementById('mixtureContent');
+            if (mixture.length === 0) {
+                content.innerHTML = '<div style="color: #888; text-align: center;">Empty</div>';
+                return;
+            }
+
+            content.innerHTML = mixture.map(chem => `
+                <div class="mixture-item">
+                    <span>${chem.name}</span>
+                    <span style="color: #888;">${chem.formula}</span>
+                </div>
+            `).join('');
+        }
+
+        function toggleHeat() {
+            isHeating = !isHeating;
+            const btn = document.getElementById('heatBtn');
+            const burner = document.getElementById('burner');
+            
+            if (isHeating) {
+                btn.classList.add('active');
+                burner.classList.add('active');
+                addLog('🔥 Heat applied', 'warning');
+                if (mixture.length > 0) {
+                    createBubbles(10);
+                }
+            } else {
+                btn.classList.remove('active');
+                burner.classList.remove('active');
+                addLog('Heat removed', 'normal');
+            }
+
+            checkReaction();
+        }
+
+        function toggleStir() {
+            isStirring = !isStirring;
+            const btn = document.getElementById('stirBtn');
+            
+            if (isStirring) {
+                btn.classList.add('active');
+                addLog('🥄 Stirring...', 'normal');
+                createBubbles(8);
+            } else {
+                btn.classList.remove('active');
+                addLog('Stopped stirring', 'normal');
+            }
+
+            checkReaction();
+        }
+
+        function updateTemperature() {
+            temperature = document.getElementById('tempSlider').value;
+            document.getElementById('tempDisplay').textContent = temperature + '°C';
+            
+            if (temperature > 100 && mixture.length > 0) {
+                createBubbles(15);
+                addLog(`High temperature: ${temperature}°C`, 'warning');
+            }
+
+            checkReaction();
+        }
+
+        function createBubbles(count) {
+            const container = document.getElementById('bubbles');
+            container.innerHTML = '';
+            
+            for (let i = 0; i < count; i++) {
+                const bubble = document.createElement('div');
+                bubble.className = 'bubble';
+                bubble.style.width = Math.random() * 10 + 5 + 'px';
+                bubble.style.height = bubble.style.width;
+                bubble.style.left = Math.random() * 100 + '%';
+                bubble.style.animationDelay = Math.random() * 2 + 's';
+                bubble.style.animationDuration = Math.random() * 2 + 2 + 's';
+                container.appendChild(bubble);
+            }
+        }
+
+        function checkReaction() {
+            if (mixture.length < 2) return;
+
+            const formulas = mixture.map(c => c.formula);
+            
+            // Acid + Base reactions
+            if (formulas.includes('HCl') && formulas.includes('NaOH')) {
+                addLog('⚠️ NEUTRALIZATION: Acid + Base → Salt + Water + Heat!', 'success');
+                if (isHeating) {
+                    addLog('💥 Solution is bubbling vigorously!', 'warning');
+                }
+            }
+
+            // Strong acids together
+            if (formulas.includes('HCl') && formulas.includes('H₂SO₄')) {
+                addLog('⚠️ WARNING: Mixing strong acids - Handle with care!', 'danger');
+            }
+
+            // Copper sulfate reactions
+            if (formulas.includes('CuSO₄') && formulas.includes('NaOH')) {
+                addLog('✨ Blue precipitate forming: Cu(OH)₂', 'success');
+            }
+
+            // Permanganate reactions
+            if (formulas.includes('KMnO₄') && formulas.includes('HCl')) {
+                addLog('🟢 Color change: Purple → Green (Chlorine gas produced)', 'warning');
+            }
+
+            // pH indicator reactions
+            if (formulas.includes('C₂₀H₁₄O₄')) {
+                const avgPh = mixture.reduce((sum, c) => sum + c.ph, 0) / mixture.length;
+                if (avgPh > 8) {
+                    addLog('🌸 Phenolphthalein turns PINK (Basic solution)', 'success');
+                } else {
+                    addLog('Phenolphthalein remains COLORLESS (Acidic solution)', 'normal');
+                }
+            }
+
+            // Temperature-dependent reactions
+            if (temperature > 100 && mixture.length > 0) {
+                addLog('💨 Solution is boiling!', 'warning');
+                createBubbles(20);
+            }
+
+            // Ammonia reactions
+            if (formulas.includes('NH₃') && (formulas.includes('HCl') || formulas.includes('H₂SO₄'))) {
+                addLog('☁️ White smoke forming: Ammonium salt', 'success');
+            }
+
+            // Iron reactions
+            if (formulas.includes('FeCl₃') && formulas.includes('NaOH')) {
+                addLog('🟤 Rusty brown precipitate: Fe(OH)₃', 'success');
+            }
+        }
+
+        function autoClearBeaker() {
+            // Automatic clear when overfilled
+            mixture = [];
+            liquidLevel = 0;
+            temperature = 20;
+            isHeating = false;
+            isStirring = false;
+            
+            const tempSlider = document.getElementById('tempSlider');
+            const tempDisplay = document.getElementById('tempDisplay');
+            const heatBtn = document.getElementById('heatBtn');
+            const stirBtn = document.getElementById('stirBtn');
+            const burner = document.getElementById('burner');
+            const bubbles = document.getElementById('bubbles');
+            const liquid = document.getElementById('liquid');
+            const mixtureContent = document.getElementById('mixtureContent');
+            
+            if (tempSlider) tempSlider.value = 20;
+            if (tempDisplay) tempDisplay.textContent = '20°C';
+            if (heatBtn) heatBtn.classList.remove('active');
+            if (stirBtn) stirBtn.classList.remove('active');
+            if (burner) burner.classList.remove('active');
+            if (bubbles) bubbles.innerHTML = '';
+            if (liquid) {
+                liquid.style.height = '0%';
+                liquid.style.background = '#3498db';
+            }
+            if (mixtureContent) {
+                mixtureContent.innerHTML = '<div style="color: #888; text-align: center;">Empty</div>';
+            }
+            
+            updateLiquid();
+            addLog('🧹 Beaker automatically emptied and cleaned!', 'normal');
+        }
+
+        function clearBeaker() {
+            const confirmed = confirm('Are you sure you want to empty the beaker and start fresh?');
+            
+            if (confirmed) {
+                // Reset ALL variables
+                mixture = [];
+                liquidLevel = 0;
+                temperature = 20;
+                isHeating = false;
+                isStirring = false;
+                
+                // Reset all UI elements
+                const tempSlider = document.getElementById('tempSlider');
+                const tempDisplay = document.getElementById('tempDisplay');
+                const heatBtn = document.getElementById('heatBtn');
+                const stirBtn = document.getElementById('stirBtn');
+                const burner = document.getElementById('burner');
+                const bubbles = document.getElementById('bubbles');
+                const liquid = document.getElementById('liquid');
+                const logContent = document.getElementById('logContent');
+                const mixtureContent = document.getElementById('mixtureContent');
+                
+                // Reset temperature
+                if (tempSlider) tempSlider.value = 20;
+                if (tempDisplay) tempDisplay.textContent = '20°C';
+                
+                // Remove active states
+                if (heatBtn) heatBtn.classList.remove('active');
+                if (stirBtn) stirBtn.classList.remove('active');
+                if (burner) burner.classList.remove('active');
+                
+                // Clear visual effects
+                if (bubbles) bubbles.innerHTML = '';
+                if (liquid) {
+                    liquid.style.height = '0%';
+                    liquid.style.background = '#3498db';
+                }
+                
+                // Reset mixture display
+                if (mixtureContent) {
+                    mixtureContent.innerHTML = '<div style="color: #888; text-align: center;">Empty</div>';
+                }
+                
+                // Clear log and add fresh message
+                if (logContent) {
+                    logContent.innerHTML = '<div style="color: #888; text-align: center;">No reactions yet</div>';
+                }
+            }
+        }
+
+        function addLog(message, type = 'normal') {
+            const logContent = document.getElementById('logContent');
+            
+            if (logContent.children[0]?.style.color === 'rgb(136, 136, 136)') {
+                logContent.innerHTML = '';
+            }
+
+            const entry = document.createElement('div');
+            entry.className = `log-entry ${type}`;
+            entry.textContent = message;
+            logContent.insertBefore(entry, logContent.firstChild);
+
+            // Keep only last 10 entries
+            while (logContent.children.length > 10) {
+                logContent.removeChild(logContent.lastChild);
+            }
+        }
+
+        // Initialize
+        renderChemicals();
+        updateLiquid();
+    </script>
+</body>
+</html>

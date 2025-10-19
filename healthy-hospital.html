@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Healthy Hospital</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 100%);
+            color: #e0e0e0;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            padding: 40px 20px;
+            position: relative;
+        }
+
+        .home-btn {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(102, 126, 234, 0.1);
+            border: 2px solid #667eea;
+            color: #667eea;
+            padding: 12px 25px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .home-btn:hover {
+            background: #667eea;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        h1 {
+            font-size: 3.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #888;
+            font-size: 1.1rem;
+            letter-spacing: 1px;
+        }
+
+        .disclaimer {
+            background: rgba(255, 107, 107, 0.1);
+            border: 2px solid rgba(255, 107, 107, 0.3);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 30px 0;
+            text-align: center;
+        }
+
+        .disclaimer-title {
+            color: #ff6b6b;
+            font-weight: 600;
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+        }
+
+        .disclaimer-text {
+            color: #999;
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        .step-container {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 40px;
+            margin: 30px 0;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 30px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            transition: width 0.5s ease;
+            border-radius: 10px;
+        }
+
+        .question-title {
+            font-size: 1.8rem;
+            margin-bottom: 25px;
+            color: #fff;
+        }
+
+        .symptom-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .symptom-checkbox {
+            display: none;
+        }
+
+        .symptom-label {
+            display: block;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            font-size: 1rem;
+        }
+
+        .symptom-label:hover {
+            background: rgba(102, 126, 234, 0.1);
+            border-color: rgba(102, 126, 234, 0.3);
+        }
+
+        .symptom-checkbox:checked + .symptom-label {
+            background: rgba(102, 126, 234, 0.2);
+            border-color: #667eea;
+            color: #667eea;
+        }
+
+        .option-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .option-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            color: #e0e0e0;
+            padding: 20px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            text-align: left;
+        }
+
+        .option-btn:hover {
+            background: rgba(102, 126, 234, 0.1);
+            border-color: rgba(102, 126, 234, 0.3);
+            transform: translateX(5px);
+        }
+
+        .input-group {
+            margin: 20px 0;
+        }
+
+        .input-label {
+            display: block;
+            margin-bottom: 10px;
+            color: #b0b0b0;
+            font-size: 1rem;
+        }
+
+        .text-input {
+            width: 100%;
+            padding: 15px 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            color: #e0e0e0;
+            font-size: 1rem;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .text-input:focus {
+            border-color: #667eea;
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: space-between;
+            margin-top: 30px;
+        }
+
+        .btn {
+            padding: 15px 35px;
+            border: none;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #764ba2;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: #e0e0e0;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .results-container {
+            margin-top: 30px;
+        }
+
+        .result-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(102, 126, 234, 0.3);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            animation: slideIn 0.5s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .result-title {
+            font-size: 1.5rem;
+            color: #667eea;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .result-description {
+            color: #b0b0b0;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+
+        .result-recommendations {
+            background: rgba(255, 255, 255, 0.03);
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 15px;
+        }
+
+        .recommendation-title {
+            font-weight: 600;
+            color: #888;
+            margin-bottom: 10px;
+        }
+
+        .recommendation-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .recommendation-list li {
+            padding: 8px 0;
+            color: #999;
+            display: flex;
+            align-items: start;
+            gap: 10px;
+        }
+
+        .recommendation-list li:before {
+            content: "→";
+            color: #667eea;
+            font-weight: bold;
+        }
+
+        .restart-btn {
+            width: 100%;
+            margin-top: 30px;
+        }
+
+        @media (max-width: 768px) {
+            h1 { font-size: 2.5rem; }
+            .step-container { padding: 25px; }
+            .symptom-grid { grid-template-columns: 1fr; }
+            .home-btn {
+                position: static;
+                margin-bottom: 20px;
+            }
+            header {
+                padding-top: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <a href="#" class="home-btn" onclick="window.location.href='index.html'; return false;">← Home</a>
+            <h1>🏥 The Healthy Hospital</h1>
+            <p class="subtitle">Smart symptom analysis and health guidance</p>
+        </header>
+
+        <div class="disclaimer">
+            <div class="disclaimer-title">⚠️ Medical Disclaimer</div>
+            <div class="disclaimer-text">
+                This tool provides general health information only and is not a substitute for professional medical advice, 
+                diagnosis, or treatment. Always consult a qualified healthcare provider for medical concerns.
+            </div>
+        </div>
+
+        <div class="step-container" id="stepContainer">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressBar" style="width: 0%"></div>
+            </div>
+            <div id="stepContent"></div>
+        </div>
+    </div>
+
+    <script>
+        const userData = {
+            symptoms: [],
+            duration: '',
+            severity: '',
+            age: '',
+            additionalInfo: ''
+        };
+
+        let currentStep = 0;
+
+        const steps = [
+            {
+                question: "What symptoms are you experiencing?",
+                type: "multiple",
+                key: "symptoms",
+                options: [
+                    "Headache", "Fever", "Cough", "Fatigue", 
+                    "Nausea", "Dizziness", "Body aches", "Sore throat",
+                    "Shortness of breath", "Chest pain", "Abdominal pain", "Loss of appetite"
+                ]
+            },
+            {
+                question: "How long have you been experiencing these symptoms?",
+                type: "single",
+                key: "duration",
+                options: [
+                    "Less than 24 hours",
+                    "1-3 days",
+                    "4-7 days",
+                    "1-2 weeks",
+                    "More than 2 weeks"
+                ]
+            },
+            {
+                question: "How would you rate the severity of your symptoms?",
+                type: "single",
+                key: "severity",
+                options: [
+                    "Mild - Minor discomfort, can function normally",
+                    "Moderate - Noticeable discomfort, some difficulty with daily activities",
+                    "Severe - Significant discomfort, difficult to perform daily activities",
+                    "Critical - Unable to function, immediate medical attention needed"
+                ]
+            },
+            {
+                question: "What is your age range?",
+                type: "single",
+                key: "age",
+                options: [
+                    "Under 18",
+                    "18-30",
+                    "31-50",
+                    "51-70",
+                    "Over 70"
+                ]
+            },
+            {
+                question: "Any additional information? (Optional)",
+                type: "text",
+                key: "additionalInfo",
+                placeholder: "E.g., recent travel, exposure to illness, chronic conditions, current medications..."
+            }
+        ];
+
+        function renderStep() {
+            const step = steps[currentStep];
+            const progress = ((currentStep + 1) / steps.length) * 100;
+            document.getElementById('progressBar').style.width = progress + '%';
+
+            let contentHTML = `<h2 class="question-title">${step.question}</h2>`;
+
+            if (step.type === "multiple") {
+                contentHTML += '<div class="symptom-grid">';
+                step.options.forEach((option, index) => {
+                    const isChecked = userData[step.key].includes(option);
+                    contentHTML += `
+                        <div>
+                            <input type="checkbox" id="option${index}" class="symptom-checkbox" 
+                                   ${isChecked ? 'checked' : ''} 
+                                   onchange="toggleSymptom('${option}')">
+                            <label for="option${index}" class="symptom-label">${option}</label>
+                        </div>
+                    `;
+                });
+                contentHTML += '</div>';
+            } else if (step.type === "single") {
+                contentHTML += '<div class="option-grid">';
+                step.options.forEach(option => {
+                    contentHTML += `
+                        <button class="option-btn" onclick="selectOption('${step.key}', '${option}')">
+                            ${option}
+                        </button>
+                    `;
+                });
+                contentHTML += '</div>';
+            } else if (step.type === "text") {
+                contentHTML += `
+                    <div class="input-group">
+                        <label class="input-label">${step.placeholder}</label>
+                        <textarea class="text-input" id="textInput" rows="5" 
+                                  placeholder="${step.placeholder}">${userData[step.key]}</textarea>
+                    </div>
+                `;
+            }
+
+            contentHTML += `
+                <div class="nav-buttons">
+                    <button class="btn btn-secondary" onclick="previousStep()" ${currentStep === 0 ? 'style="visibility: hidden"' : ''}>
+                        ← Previous
+                    </button>
+                    <button class="btn btn-primary" onclick="nextStep()" id="nextBtn">
+                        ${currentStep === steps.length - 1 ? 'Get Results' : 'Next →'}
+                    </button>
+                </div>
+            `;
+
+            document.getElementById('stepContent').innerHTML = contentHTML;
+            updateNextButton();
+        }
+
+        function toggleSymptom(symptom) {
+            const index = userData.symptoms.indexOf(symptom);
+            if (index > -1) {
+                userData.symptoms.splice(index, 1);
+            } else {
+                userData.symptoms.push(symptom);
+            }
+            updateNextButton();
+        }
+
+        function selectOption(key, value) {
+            userData[key] = value;
+            setTimeout(nextStep, 300);
+        }
+
+        function updateNextButton() {
+            const step = steps[currentStep];
+            const nextBtn = document.getElementById('nextBtn');
+            
+            if (step.type === "multiple") {
+                nextBtn.disabled = userData[step.key].length === 0;
+            } else if (step.type === "text") {
+                // Text input is optional, so always enabled
+                nextBtn.disabled = false;
+            }
+        }
+
+        function nextStep() {
+            const step = steps[currentStep];
+            
+            if (step.type === "text") {
+                const textInput = document.getElementById('textInput');
+                userData[step.key] = textInput.value;
+            }
+
+            if (currentStep < steps.length - 1) {
+                currentStep++;
+                renderStep();
+            } else {
+                showResults();
+            }
+        }
+
+        function previousStep() {
+            if (currentStep > 0) {
+                currentStep--;
+                renderStep();
+            }
+        }
+
+        function showResults() {
+            const results = analyzeSymptoms();
+            
+            let resultsHTML = '<h2 class="question-title">📋 Your Health Assessment</h2>';
+            resultsHTML += '<div class="results-container">';
+
+            results.forEach((result, index) => {
+                resultsHTML += `
+                    <div class="result-card" style="animation-delay: ${index * 0.1}s">
+                        <div class="result-title">
+                            ${result.icon} ${result.condition}
+                        </div>
+                        <div class="result-description">${result.description}</div>
+                        <div class="result-recommendations">
+                            <div class="recommendation-title">Recommendations:</div>
+                            <ul class="recommendation-list">
+                                ${result.recommendations.map(rec => `<li>${rec}</li>`).join('')}
+                            </ul>
+                        </div>
+                    </div>
+                `;
+            });
+
+            resultsHTML += '</div>';
+            resultsHTML += '<button class="btn btn-primary restart-btn" onclick="restart()">Start New Assessment</button>';
+
+            document.getElementById('stepContent').innerHTML = resultsHTML;
+            document.getElementById('progressBar').style.width = '100%';
+        }
+
+        function analyzeSymptoms() {
+            const results = [];
+            const symptoms = userData.symptoms;
+            const severity = userData.severity;
+
+            // Check for emergency symptoms
+            if (severity.includes("Critical") || symptoms.includes("Chest pain") || symptoms.includes("Shortness of breath")) {
+                results.push({
+                    icon: "🚨",
+                    condition: "Seek Immediate Medical Attention",
+                    description: "Based on your symptoms, you should seek immediate medical care. Please visit the nearest emergency room or call emergency services.",
+                    recommendations: [
+                        "Call emergency services or go to the ER immediately",
+                        "Do not drive yourself if symptoms are severe",
+                        "Have someone stay with you if possible"
+                    ]
+                });
+            }
+
+            // Analyze common symptom patterns
+            if (symptoms.includes("Fever") && symptoms.includes("Cough") && symptoms.includes("Fatigue")) {
+                results.push({
+                    icon: "🤒",
+                    condition: "Possible Respiratory Infection",
+                    description: "Your symptoms suggest a possible respiratory infection such as flu, cold, or COVID-19. These symptoms are common with viral infections.",
+                    recommendations: [
+                        "Rest and stay hydrated",
+                        "Monitor your temperature regularly",
+                        "Consider getting tested for COVID-19",
+                        "Consult a doctor if symptoms worsen or persist beyond 7 days",
+                        "Avoid contact with others to prevent spread"
+                    ]
+                });
+            }
+
+            if (symptoms.includes("Headache") && symptoms.includes("Nausea") && symptoms.includes("Dizziness")) {
+                results.push({
+                    icon: "🤕",
+                    condition: "Possible Migraine or Tension Symptoms",
+                    description: "The combination of headache, nausea, and dizziness could indicate migraine, dehydration, or stress-related symptoms.",
+                    recommendations: [
+                        "Rest in a quiet, dark room",
+                        "Stay well hydrated",
+                        "Avoid triggers like bright lights and loud sounds",
+                        "Consider over-the-counter pain relief",
+                        "See a doctor if headaches are frequent or severe"
+                    ]
+                });
+            }
+
+            if (symptoms.includes("Fatigue") && symptoms.includes("Body aches")) {
+                results.push({
+                    icon: "😴",
+                    condition: "General Fatigue and Body Discomfort",
+                    description: "Fatigue and body aches can result from various causes including overexertion, stress, poor sleep, or early signs of illness.",
+                    recommendations: [
+                        "Ensure adequate sleep (7-9 hours)",
+                        "Stay hydrated throughout the day",
+                        "Light stretching or gentle exercise",
+                        "Reduce stress through relaxation techniques",
+                        "Consult a doctor if symptoms persist beyond 2 weeks"
+                    ]
+                });
+            }
+
+            if (symptoms.includes("Abdominal pain") || symptoms.includes("Nausea")) {
+                results.push({
+                    icon: "🤢",
+                    condition: "Gastrointestinal Discomfort",
+                    description: "Your symptoms suggest digestive system issues which could be caused by food, stress, or a stomach virus.",
+                    recommendations: [
+                        "Eat bland, easy-to-digest foods (BRAT diet)",
+                        "Stay hydrated with clear fluids",
+                        "Avoid dairy, caffeine, and fatty foods temporarily",
+                        "Rest and avoid strenuous activity",
+                        "See a doctor if severe pain, blood in stool, or symptoms last more than 2 days"
+                    ]
+                });
+            }
+
+            // If no specific patterns or mild symptoms
+            if (results.length === 0 && severity.includes("Mild")) {
+                results.push({
+                    icon: "✅",
+                    condition: "Minor Symptoms - Self-Care Recommended",
+                    description: "Your symptoms appear to be mild. With proper self-care, you should feel better soon.",
+                    recommendations: [
+                        "Get plenty of rest",
+                        "Stay well hydrated",
+                        "Eat nutritious meals",
+                        "Monitor your symptoms",
+                        "Consult a doctor if symptoms worsen or don't improve in a few days"
+                    ]
+                });
+            }
+
+            // General advice for all conditions
+            if (!severity.includes("Critical") && results.length > 0) {
+                results.push({
+                    icon: "💡",
+                    condition: "General Health Tips",
+                    description: "Here are some general recommendations to support your recovery and overall health.",
+                    recommendations: [
+                        "Maintain a balanced diet rich in fruits and vegetables",
+                        "Stay physically active when you feel able",
+                        "Practice good hygiene (handwashing, etc.)",
+                        "Get adequate sleep each night",
+                        "Keep a symptom diary to track changes",
+                        "Don't hesitate to seek professional medical advice"
+                    ]
+                });
+            }
+
+            return results;
+        }
+
+        function restart() {
+            userData.symptoms = [];
+            userData.duration = '';
+            userData.severity = '';
+            userData.age = '';
+            userData.additionalInfo = '';
+            currentStep = 0;
+            renderStep();
+        }
+
+        // Initialize
+        renderStep();
+    </script>
+</body>
+</html>
