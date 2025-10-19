@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Learners Lair</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 100%);
+            color: #e0e0e0;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        header {
+            text-align: center;
+            padding: 60px 20px 40px;
+            position: relative;
+        }
+
+        h1 {
+            font-size: 4rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+            animation: glow 3s ease-in-out infinite;
+        }
+
+        @keyframes glow {
+            0%, 100% { filter: drop-shadow(0 0 20px rgba(102, 126, 234, 0.4)); }
+            50% { filter: drop-shadow(0 0 30px rgba(118, 75, 162, 0.6)); }
+        }
+
+        .tagline {
+            font-size: 1.2rem;
+            color: #888;
+            letter-spacing: 2px;
+        }
+
+        nav {
+            position: absolute;
+            top: 20px;
+            right: 40px;
+        }
+
+        .about-btn {
+            background: rgba(102, 126, 234, 0.1);
+            border: 2px solid #667eea;
+            color: #667eea;
+            padding: 12px 30px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .about-btn:hover {
+            background: #667eea;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .section {
+            margin-bottom: 80px;
+        }
+
+        .section-title {
+            font-size: 1.8rem;
+            margin-bottom: 30px;
+            color: #b0b0b0;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            font-weight: 300;
+        }
+
+        .tiles-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            padding: 20px;
+        }
+
+        .tile {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 40px 30px;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .tile::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, transparent 0%, rgba(102, 126, 234, 0.1) 100%);
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+
+        .tile:hover {
+            transform: translateY(-10px) scale(1.02);
+            border-color: rgba(102, 126, 234, 0.5);
+            box-shadow: 0 20px 60px rgba(102, 126, 234, 0.2);
+        }
+
+        .tile:hover::before {
+            opacity: 1;
+        }
+
+        .tile-icon {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            display: block;
+        }
+
+        .tile-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #fff;
+            position: relative;
+            z-index: 1;
+        }
+
+        .tile-desc {
+            font-size: 0.95rem;
+            color: #999;
+            line-height: 1.6;
+            position: relative;
+            z-index: 1;
+        }
+
+        .group1 .tile { animation: floatIn 0.6s ease-out forwards; }
+        .group2 .tile { animation: floatIn 0.6s ease-out 0.2s forwards; opacity: 0; }
+        .group3 .tile { animation: floatIn 0.6s ease-out 0.4s forwards; opacity: 0; }
+
+        @keyframes floatIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            border: 1px solid rgba(102, 126, 234, 0.3);
+            border-radius: 20px;
+            padding: 50px;
+            max-width: 700px;
+            max-height: 80vh;
+            overflow-y: auto;
+            position: relative;
+            animation: slideUp 0.4s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            font-size: 2rem;
+            color: #888;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .close-btn:hover {
+            color: #667eea;
+        }
+
+        .modal-content h2 {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .modal-content p {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            color: #b0b0b0;
+            margin-bottom: 20px;
+        }
+
+        footer {
+            text-align: center;
+            padding: 40px 20px;
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            h1 { font-size: 2.5rem; }
+            .tagline { font-size: 1rem; }
+            nav { position: static; text-align: center; margin-top: 20px; }
+            .tiles-grid { grid-template-columns: 1fr; }
+            .modal-content { padding: 30px; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav>
+            <button class="about-btn" onclick="openModal()">About</button>
+        </nav>
+        <h1>Learners Lair</h1>
+        <p class="tagline">Where Curiosity Meets Discovery</p>
+    </header>
+
+    <div class="container">
+        <div class="section group1">
+            <h2 class="section-title">Serious & Helpful</h2>
+            <div class="tiles-grid">
+                <div class="tile" onclick="window.location.href='#daily-news'">
+                    <span class="tile-icon">📰</span>
+                    <h3 class="tile-title">The Daily News</h3>
+                    <p class="tile-desc">Stay informed with the latest headlines from the past 7 days. Filter by category and never miss what matters.</p>
+                </div>
+                <div class="tile" onclick="window.location.href='#healthy-hospital'">
+                    <span class="tile-icon">🏥</span>
+                    <h3 class="tile-title">The Healthy Hospital</h3>
+                    <p class="tile-desc">Answer guided questions about your symptoms and discover possible conditions with our smart diagnostic assistant.</p>
+                </div>
+                <div class="tile" onclick="window.location.href='#pixel-art'">
+                    <span class="tile-icon">🌈</span>
+                    <h3 class="tile-title">Pixel Art Creator</h3>
+                    <p class="tile-desc">Create stunning pixel art masterpieces with an easy-to-use grid-based editor and various tools.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="section group2">
+            <h2 class="section-title">Fun But Learning</h2>
+            <div class="tiles-grid">
+                <div class="tile" onclick="window.location.href='#lazy-calculator'">
+                    <span class="tile-icon">🧮</span>
+                    <h3 class="tile-title">Lazy Calculator</h3>
+                    <p class="tile-desc">Solve any math problem, but here's the twist - the answer comes as another equation! Can you solve it?</p>
+                </div>
+                <div class="tile" onclick="window.location.href='#music-composer'">
+                    <span class="tile-icon">🎵</span>
+                    <h3 class="tile-title">Music Composer</h3>
+                    <p class="tile-desc">Create music with everyday sounds! Build beats, adjust tempo, and compose your own unique tracks.</p>
+                </div>
+                <div class="tile" onclick="window.location.href='#crazy-chemist'">
+                    <span class="tile-icon">⚗️</span>
+                    <h3 class="tile-title">Crazy Chemist</h3>
+                    <p class="tile-desc">Your virtual chemistry lab! Mix chemicals, heat substances, and watch reactions unfold in real-time. Experiment safely!</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="section group3">
+            <h2 class="section-title">Riddles & Pure Fun</h2>
+            <div class="tiles-grid">
+                <div class="tile" onclick="window.location.href='#bony-biologist'">
+                    <span class="tile-icon">🌱</span>
+                    <h3 class="tile-title">Bony Biologist</h3>
+                    <p class="tile-desc">Learn about real plants and grow your own virtual garden! Discover plant facts and watch them grow over time.</p>
+                </div>
+                <div class="tile" onclick="window.location.href='#reaction-time'">
+                    <span class="tile-icon">⏱️</span>
+                    <h3 class="tile-title">Reaction Time Tester</h3>
+                    <p class="tile-desc">Test your reflexes! Click when the screen turns green and see how fast you can react. Beat your best time!</p>
+                </div>
+                <div class="tile" onclick="window.location.href='#budget-simulator'">
+                    <span class="tile-icon">💰</span>
+                    <h3 class="tile-title">Budget Simulator</h3>
+                    <p class="tile-desc">Can you survive the month without going broke? Manage expenses, handle random events, and master budgeting!</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="aboutModal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal()">&times;</span>
+            <h2>About Learners Lair</h2>
+            <p>Hi there! I'm <strong>Lalan.B</strong>, and I created Learners Lair because I believe learning should be fun and accessible to everyone.</p>
+            <p>This project started with a simple idea: what if education felt less like work and more like play? That's why I built this collection of interactive tools that make learning engaging and enjoyable.</p>
+            <p><strong>What You'll Find Here:</strong></p>
+            <p>📰 <strong>Serious & Helpful</strong> – Tools like news updates, health guidance, and creative apps for everyday use.<br>
+            🎮 <strong>Fun But Learning</strong> – Games and simulations that teach real concepts while you play.<br>
+            🎪 <strong>Riddles & Pure Fun</strong> – Activities that challenge your mind and test your skills.</p>
+            <p>Whether you're here to learn something new, test your reflexes, or just have fun, I hope you enjoy exploring Learners Lair as much as I enjoyed building it.</p>
+            <p style="margin-top: 30px; color: #667eea; font-weight: 600;">— Lalan.B</p>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2025 Learners Lair. Where every click is a new discovery.</p>
+    </footer>
+
+    <script>
+        function openModal() {
+            document.getElementById('aboutModal').classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('aboutModal').classList.remove('active');
+        }
+
+        // Close modal when clicking outside
+        document.getElementById('aboutModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+
+        // Add subtle floating animation to tiles
+        document.querySelectorAll('.tile').forEach((tile, index) => {
+            tile.style.animation += `, float 3s ease-in-out ${index * 0.2}s infinite`;
+        });
+
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes float {
+                0%, 100% { transform: translateY(0px); }
+                50% { transform: translateY(-5px); }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>
